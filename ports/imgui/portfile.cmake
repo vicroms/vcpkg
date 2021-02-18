@@ -4,8 +4,8 @@ if ("docking-experimental" IN_LIST FEATURES)
     vcpkg_from_github(
        OUT_SOURCE_PATH SOURCE_PATH
        REPO ocornut/imgui
-       REF 682249396f02b8c21e5ff333ab4a1969c89387ad
-       SHA512 95f17c14e0a8f10dfc51fd1b30894f9905433fac8f9a93b6c545a542df5eb20be68f40996080a85cba934107ce19fff91a1df1edad1a1b5a0030e8f626e1985d
+       REF 4df57136e9832327c11e48b5bfe00b0326bd5b63
+       SHA512 8b31fc1e8c0ea8d5ed568db2aa235f1638c867c79567597338bca5546697826433a385e84bd06a2f25acbfe578dfcc5f1f18e09fb2b2ee88b19db8a4ac748611
        HEAD_REF docking
        )
 else()
