@@ -154,11 +154,6 @@ link_libraries(${PackageName_LIBRARIES})
 target_include_directories(main PRIVATE "C:/vcpkg/installed/x64-windows/include")
 ```
 
-❌ **Manual library discovery:**
-```cmake
-find_library(MYLIB_LIBRARY mylib PATHS "...")
-```
-
 ✅ **Use modern targets:**
 ```cmake
 find_package(PackageName CONFIG REQUIRED)
