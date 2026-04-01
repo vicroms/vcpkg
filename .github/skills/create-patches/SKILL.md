@@ -37,15 +37,9 @@ This mode will:
 - Guide you through creating appropriate patches
 
 ### Mode 2: Port Name (Simple)
-Use for general patch creation when you know the port name:
+Use for general patch creation when you know the port name. This mode deducts the build and port directories based on the provided port name:
 ```
 create-patches mylibrary
-```
-
-### Mode 3: GitHub URL (New Port)
-Use when creating patches for a new port from a GitHub repository:
-```
-create-patches https://github.com/owner/repo
 ```
 
 ## Overview
