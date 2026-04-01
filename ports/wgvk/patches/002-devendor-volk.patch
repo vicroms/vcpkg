@@ -1,0 +1,41 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 89634ac..8b9dff1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -273,6 +273,12 @@ target_include_directories(${WGVK_PRIMARY_TARGET_NAME} PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+   $<INSTALL_INTERFACE:include>
+ )
++
++find_package(volk CONFIG REQUIRED)
++target_link_libraries(${WGVK_PRIMARY_TARGET_NAME}
++  PRIVATE volk::volk
++  PUBLIC volk::volk_headers
++)
+ # Platform-specific surface support
+ if(WIN32)
+   target_compile_definitions(${WGVK_PRIMARY_TARGET_NAME} PUBLIC SUPPORT_WIN32_SURFACE=1)
+diff --git a/src/wgvk.c b/src/wgvk.c
+index 5a99f9c..5c3860e 100644
+--- a/src/wgvk.c
++++ b/src/wgvk.c
+@@ -27,9 +27,7 @@
+ #include "wgvk_config.h"
+ #include <stdatomic.h>
+ #include <stdint.h>
+-#define VK_NO_PROTOTYPES
+-#include "vulkan/vulkan_core.h"
+-#define VOLK_IMPLEMENTATION
++
+ #ifndef zeroinit
+     #define zeroinit = {0}
+ #endif
+@@ -99,7 +97,7 @@
+     #include <vulkan/vulkan_metal.h>
+     #include <vulkan/vulkan_macos.h>
+ #endif
+-#include <external/volk.h>
++#include <volk.h>
+ #include <inttypes.h>
+ #define Font rlFont
+ #define Matrix rlMatrix

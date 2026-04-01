@@ -1,0 +1,25 @@
+{
+  "name": "raygpu",
+  "version-date": "2026-03-24",
+  "description": "Fast graphics library written in C99, inspired by raylib, targeting Vulkan, Metal, DirectX and WebGPU",
+  "homepage": "https://github.com/manuel5975p/raygpu",
+  "license": "MIT",
+  "dependencies": [
+    "cgltf",
+    "glfw3",
+    "msf-gif",
+    "par",
+    "sinfl",
+    "spirv-reflect",
+    "stb",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "wgvk"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "tinyobj-loader-c",
+  "version-date": "2025-06-22",
+  "description": "Tiny but powerful C99 single file wavefront obj loader",
+  "homepage": "https://github.com/syoyo/tinyobjloader-c",
+  "license": "MIT"
+}

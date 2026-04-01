@@ -1,0 +1,4 @@
+sinfl is header-only and can be used from CMake via:
+
+  find_path(SINFL_INCLUDE_DIRS sinfl.h)
+  target_include_directories(main PRIVATE ${SINFL_INCLUDE_DIRS})

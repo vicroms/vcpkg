@@ -1,0 +1,8 @@
+{
+  "name": "par",
+  "version-date": "2025-09-27",
+  "port-version": 1,
+  "description": "Collection of single-file C libraries for procedural meshes and other utilities",
+  "homepage": "https://github.com/prideout/par",
+  "license": "MIT"
+}

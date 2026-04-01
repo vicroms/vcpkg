@@ -1,0 +1,8 @@
+{
+  "name": "msf-gif",
+  "version-date": "2025-09-10",
+  "port-version": 1,
+  "description": "Single-header C library for creating animated GIFs",
+  "homepage": "https://github.com/notnullnotvoid/msf_gif",
+  "license": "MIT OR Unlicense"
+}

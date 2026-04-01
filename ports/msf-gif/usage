@@ -1,0 +1,4 @@
+msf-gif is header-only and can be used from CMake via:
+
+  find_path(MSF_GIF_INCLUDE_DIRS msf_gif.h)
+  target_include_directories(main PRIVATE ${MSF_GIF_INCLUDE_DIRS})

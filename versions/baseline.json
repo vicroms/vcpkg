@@ -1690,7 +1690,7 @@
     },
     "cgltf": {
       "baseline": "1.15",
-      "port-version": 0
+      "port-version": 1
     },
     "cgns": {
       "baseline": "4.5.1",
@@ -1958,6 +1958,10 @@
     },
     "console-bridge": {
       "baseline": "1.0.2",
+      "port-version": 0
+    },
+    "consteig": {
+      "baseline": "1.0.0",
       "port-version": 0
     },
     "constexpr": {
@@ -6628,6 +6632,10 @@
       "baseline": "1.13+new-skia-api",
       "port-version": 0
     },
+    "msf-gif": {
+      "baseline": "2025-09-10",
+      "port-version": 1
+    },
     "msgpack": {
       "baseline": "7.0.0",
       "port-version": 0
@@ -7486,6 +7494,10 @@
     },
     "pangomm": {
       "baseline": "2.56.1",
+      "port-version": 1
+    },
+    "par": {
+      "baseline": "2025-09-27",
       "port-version": 1
     },
     "parallel-hashmap": {
@@ -8512,6 +8524,10 @@
       "baseline": "1.9",
       "port-version": 4
     },
+    "raygpu": {
+      "baseline": "2026-03-24",
+      "port-version": 0
+    },
     "raygui": {
       "baseline": "4.0",
       "port-version": 0
@@ -9184,6 +9200,10 @@
       "baseline": "6.5.16",
       "port-version": 0
     },
+    "sinfl": {
+      "baseline": "2025-03-19",
+      "port-version": 1
+    },
     "sintra": {
       "baseline": "1.0.3",
       "port-version": 0
@@ -9530,7 +9550,7 @@
     },
     "stb": {
       "baseline": "2024-07-29",
-      "port-version": 1
+      "port-version": 2
     },
     "stc": {
       "baseline": "5.0",
@@ -9966,6 +9986,10 @@
     },
     "tinynpy": {
       "baseline": "1.1",
+      "port-version": 0
+    },
+    "tinyobj-loader-c": {
+      "baseline": "2025-06-22",
       "port-version": 0
     },
     "tinyobjloader": {
@@ -10671,6 +10695,10 @@
     "wg21-sg14": {
       "baseline": "2019-08-13",
       "port-version": 2
+    },
+    "wgvk": {
+      "baseline": "2026-03-25",
+      "port-version": 0
     },
     "whereami": {
       "baseline": "2024-08-26",

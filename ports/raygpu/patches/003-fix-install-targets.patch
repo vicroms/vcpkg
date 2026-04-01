@@ -1,0 +1,29 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 639c800..528a485 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -538,7 +538,14 @@ if(core_compile_defs)
+ endif()
+ 
+ 
+-target_link_libraries(raygpu INTERFACE raygpu_core)
++get_target_property(_core_compile_features ${raygpu_core_library_name} INTERFACE_COMPILE_FEATURES)
++if(_core_compile_features)
++    target_compile_features(raygpu PUBLIC ${_core_compile_features})
++endif()
++get_target_property(_core_compile_options ${raygpu_core_library_name} INTERFACE_COMPILE_OPTIONS)
++if(_core_compile_options)
++    target_compile_options(raygpu PUBLIC ${_core_compile_options})
++endif()
+ if((RAYGPU_BUILD_SHARED_LIBRARY OR BUILD_SHARED_LIBS) AND APPLE)
+   target_link_libraries(raygpu PUBLIC "-framework Cocoa" "-framework IOKit" "-framework Metal" "-framework QuartzCore")
+ endif()
+@@ -567,7 +574,7 @@ if(RAYGPU_ENABLE_INSTALL)
+   
+   install(
+     TARGETS
+-      raygpu raygpu_core wgvk glslang ${GLFW_MAYBE}
++      raygpu
+     EXPORT ${RAYGPU_INSTALL_EXPORT}
+     RUNTIME DESTINATION bin
+     LIBRARY DESTINATION lib

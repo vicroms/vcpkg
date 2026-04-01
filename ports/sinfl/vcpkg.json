@@ -1,0 +1,8 @@
+{
+  "name": "sinfl",
+  "version-date": "2025-03-19",
+  "port-version": 1,
+  "description": "Single-file C inflate (sinfl) and deflate (sdefl) library",
+  "homepage": "https://github.com/vurtun/lib",
+  "license": "MIT OR Unlicense"
+}

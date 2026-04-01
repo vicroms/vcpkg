@@ -1,0 +1,4 @@
+par is header-only and can be used from CMake via:
+
+  find_path(PAR_INCLUDE_DIRS par_shapes.h)
+  target_include_directories(main PRIVATE ${PAR_INCLUDE_DIRS})

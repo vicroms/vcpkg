@@ -1,0 +1,4 @@
+tinyobj-loader-c provides a header-only C99 OBJ loader:
+
+  #define TINYOBJ_LOADER_C_IMPLEMENTATION  // in one .c file
+  #include <tinyobj_loader_c.h>

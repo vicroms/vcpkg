@@ -1,0 +1,4 @@
+cgltf is header-only and can be used from CMake via:
+
+  find_path(CGLTF_INCLUDE_DIRS cgltf.h)
+  target_include_directories(main PRIVATE ${CGLTF_INCLUDE_DIRS})
