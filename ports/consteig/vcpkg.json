@@ -1,0 +1,17 @@
+{
+  "name": "consteig",
+  "version": "1.0.0",
+  "description": "Header-only C++17 constexpr template library for computing eigenvalues and eigenvectors of constexpr matrices at compile-time",
+  "homepage": "https://github.com/MitchellThompkins/consteig",
+  "license": "Apache-2.0",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

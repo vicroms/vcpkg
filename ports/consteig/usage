@@ -1,0 +1,4 @@
+consteig provides CMake targets:
+
+    find_package(consteig CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE consteig::consteig)
