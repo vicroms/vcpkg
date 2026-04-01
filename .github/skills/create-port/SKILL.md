@@ -181,13 +181,26 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 ```
 
-**usage** - CMake integration guide:
+**usage** - CMake integration guide for compiled libraries:
 ```cmake
 package-name provides CMake targets:
 
   find_package(package-name CONFIG REQUIRED)
   target_link_libraries(main PRIVATE unofficial::package-name)
 ```
+
+**usage** - CMake integration guide for header-only libraries:
+```
+package-name is header-only and can be used from CMake via:
+
+  find_path(<PACKAGE_NAME>_INCLUDE_DIRS <primary-header.h>)
+  target_include_directories(main PRIVATE ${<PACKAGE_NAME>_INCLUDE_DIRS})
+```
+
+> **Header-only usage pattern**: Do NOT use `find_package` for ports that only install headers with no CMake config. Use `find_path` to locate the include directory and `target_include_directories` to link it. The portfile must also explicitly install the usage file:
+> ```cmake
+> file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
+> ```
 
 ## Example Analysis Results
 
@@ -202,7 +215,6 @@ package-name provides CMake targets:
 
 **Post-Creation Checklist:**
 - [ ] Build test: `vcpkg install {package-name}` 
-- [ ] Multi-platform: `vcpkg install {package-name}:x64-windows`
 - [ ] CMake integration: Test usage examples
 - [ ] Version database: `vcpkg x-add-version {package-name}`
 - [ ] CI validation: `vcpkg ci {package-name}`
@@ -341,11 +353,17 @@ Ports should remove vendored dependencies and use vcpkg packages instead:
 
 **Replacement Strategy:**
 1. **Check vcpkg availability**: `vcpkg search <dependency-name>`
-2. **Add to manifest**: Include existing vcpkg dependencies
-3. **Create patches**: Remove vendored code and update build system to use `find_package()`
-4. **Create patches**: Remove vendored code and update build system to use `find_package()`
-5. **Disable unnecessary components**: Use CMake options or patches to disable tests, tools, and documentation
-6. **Create missing ports**: For dependencies not in vcpkg, create separate ports first
+2. **Verify API compatibility**: Check that the vcpkg port's API matches what the consuming project uses. A newer port may have breaking API changes (e.g., added/removed parameters, changed callback signatures). If incompatible, the vendored copy must be kept.
+3. **Check for private/internal header usage**: Some libraries expose private headers (e.g., `MachineIndependent/localintermediate.h` for glslang, internal traversal APIs). If the project uses these, the vcpkg port will not install them and the vendored copy must be kept.
+4. **Add to manifest**: Include existing vcpkg dependencies
+5. **Create patches**: Remove vendored code and update build system to use `find_package()`
+6. **Disable unnecessary components**: Use CMake options or patches to disable tests, tools, and documentation
+7. **Create missing ports**: For dependencies not in vcpkg, create separate ports first
+8. **Remove vendored sources in portfile**: Use `file(REMOVE_RECURSE)` in `portfile.cmake` BEFORE `vcpkg_cmake_configure` to delete bundled source trees so the build system is forced to use vcpkg-provided packages:
+   ```cmake
+   file(REMOVE_RECURSE "${SOURCE_PATH}/vendor/fmt")
+   file(REMOVE "${SOURCE_PATH}/include/external/stb_image.h")
+   ```
 
 **Example Patch Transformation:**
 ```cmake
@@ -357,6 +375,24 @@ target_link_libraries(mylib PRIVATE fmt)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(mylib PRIVATE fmt::fmt)
 ```
+
+**Unity-build style `.c` includes:** Some C projects inline-compile a dependency by `#include`-ing its `.c` file directly (unity build). When devendoring, remove the `.c` include entirely — the precompiled vcpkg library provides the symbols. Only keep the header include, updated to the system path:
+```c
+// Before (unity build — must remove when devendoring)
+#include "../vendor/mylib/mylib.c"
+#include "../vendor/mylib/mylib.h"
+
+// After (use precompiled vcpkg library)
+#include <mylib/mylib.h>
+```
+
+**Verifying CMake target names:** Do NOT guess the target name exported by a vcpkg port. Always check the installed CMake config to get the exact target:
+```powershell
+# Find the actual target name
+Get-Content "installed/x64-windows/share/<port>/<port>-config.cmake"
+# Or look for *Targets.cmake files
+```
+For example, `unofficial-spirv-reflect` exports `unofficial::spirv-reflect` (not `unofficial::spirv-reflect::spirv-reflect`), and its CMake config sets `INTERFACE_INCLUDE_DIRECTORIES` so the header is included as `<spirv_reflect.h>` directly.
 
 
 ### Tool Dependencies
@@ -487,6 +523,22 @@ file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_D
 2. Build fails with calculated hash in error message
 3. Update portfile.cmake with correct hash
 4. Rebuild to complete installation
+
+**License embedded in header (no separate LICENSE file):**
+Some single-header libraries embed the license text at the bottom of the header itself. Use the header as the copyright source:
+```cmake
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/mylib.h")
+```
+
+**Modifying an existing port (usage file, portfile changes):**
+Any change to an existing port requires incrementing `port-version` and updating the versions database:
+```json
+{ "port-version": 1 }  // increment from previous value
+```
+```powershell
+vcpkg x-add-version <port-name>
+```
+This applies even for minor changes like adding a usage file or fixing install paths.
 
 ### Success Indicators
 - ✅ No post-build warnings
