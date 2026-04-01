@@ -118,7 +118,18 @@ Based on detected build system, automatically adds required host dependencies:
   "dependencies": [
     {"name": "vcpkg-cmake", "host": true},
     {"name": "vcpkg-cmake-config", "host": true}
-  ]
+  ],
+  "features": {
+    "tests": {
+      "description": "Build and run tests"
+    },
+    "tools": {
+      "description": "Build executable tools and utilities"
+    },
+    "docs": {
+      "description": "Build documentation"
+    }
+  }
 }
 ```
 
@@ -138,7 +149,25 @@ if(VCPKG_TARGET_IS_WINDOWS)
 endif()
 
 # Build system configuration (auto-selected)
-vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        # Disable components not needed in vcpkg by default
+        -DBUILD_TESTING=OFF
+        -DBUILD_TESTS=OFF
+        -DBUILD_EXAMPLES=OFF
+        -DBUILD_SAMPLES=OFF
+        -DBUILD_DOCS=OFF
+        -DBUILD_DOC=OFF
+        -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_TOOLS=OFF
+        -DBUILD_EXECUTABLES=OFF
+        -DBUILD_APPS=OFF
+        # Feature-controlled options (when features are defined)
+        -DBUILD_TESTING=${FEATURES tests}
+        -DBUILD_TOOLS=${FEATURES tools}
+        -DBUILD_DOCS=${FEATURES docs}
+)
 vcpkg_cmake_install()
 
 # Standard vcpkg integration
@@ -198,6 +227,108 @@ package-name provides CMake targets:
 - License files and SPDX identifiers
 - Dependencies and CMake integration patterns
 
+## Component Control Strategy
+
+vcpkg ports should **disable non-essential components by default** to minimize build time, reduce dependencies, and focus on library distribution:
+
+### Default Behavior
+**Always disable by default:**
+- **Tests** (unit tests, integration tests)
+- **Documentation** (API docs, manuals)
+- **Tools/Executables** (command-line utilities, examples)
+- **Samples/Examples** (demo applications)
+
+### Implementation Methods
+
+**Method 1: CMake Options (Preferred)**
+When upstream provides CMake options to control components:
+```cmake
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        # Common disable patterns
+        -DBUILD_TESTING=OFF
+        -DBUILD_TESTS=OFF 
+        -DBUILD_DOCS=OFF
+        -DBUILD_DOCUMENTATION=OFF
+        -DBUILD_TOOLS=OFF
+        -DBUILD_EXECUTABLES=OFF
+        -DBUILD_EXAMPLES=OFF
+        -DBUILD_SAMPLES=OFF
+        # Project-specific options (analyze CMakeLists.txt)
+        -DENABLE_TESTS=OFF
+        -DWITH_TOOLS=OFF
+)
+```
+
+**Method 2: vcpkg Features (Optional Control)**
+Allow users to enable components via features:
+```json
+{
+  "features": {
+    "tests": {
+      "description": "Build and install test executables"
+    },
+    "tools": {
+      "description": "Build command-line utilities",
+      "dependencies": ["boost-program-options"]  
+    },
+    "docs": {
+      "description": "Build documentation",
+      "dependencies": [{"name": "doxygen", "host": true}]
+    }
+  }
+}
+```
+
+Then use feature-controlled options:
+```cmake
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        -DBUILD_TESTING=${FEATURES tests}
+        -DBUILD_TOOLS=${FEATURES tools}
+        -DBUILD_DOCS=${FEATURES docs}
+)
+```
+
+**Method 3: Patches (When No Options Exist)**
+When upstream doesn't provide control options, create patches:
+```cmake
+# In portfile.cmake
+vcpkg_from_github(
+    # ... other parameters ...
+    PATCHES
+        patches/001-disable-tests-tools-docs.patch
+)
+```
+
+### Component Analysis Process
+
+**Step 1: Examine Build System**
+- Review `CMakeLists.txt` for component control options
+- Look for `BUILD_*`, `ENABLE_*`, `WITH_*` variables
+- Check `option()` declarations and conditional builds
+
+**Step 2: Test Default Behavior**
+- Build with minimal configuration to see what gets built
+- Check if tests/tools/docs are built by default
+- Identify unwanted executables or documentation
+
+**Step 3: Apply Appropriate Method**
+- Use upstream CMake options if available
+- Create patches if no options exist
+- Add features for user-controllable components
+
+### Common CMake Option Patterns
+
+| Component Type | Common Option Names |
+|----------------|--------------------|
+| **Tests** | `BUILD_TESTING`, `BUILD_TESTS`, `ENABLE_TESTS`, `WITH_TESTS` |
+| **Tools** | `BUILD_TOOLS`, `BUILD_EXECUTABLES`, `BUILD_APPS`, `BUILD_PROGRAMS` |
+| **Docs** | `BUILD_DOCS`, `BUILD_DOCUMENTATION`, `ENABLE_DOCS`, `WITH_DOCS` |
+| **Examples** | `BUILD_EXAMPLES`, `BUILD_SAMPLES`, `BUILD_DEMOS` |
+
 ## Dependency Management
 
 ### Vendored Dependency Removal
@@ -212,7 +343,9 @@ Ports should remove vendored dependencies and use vcpkg packages instead:
 1. **Check vcpkg availability**: `vcpkg search <dependency-name>`
 2. **Add to manifest**: Include existing vcpkg dependencies
 3. **Create patches**: Remove vendored code and update build system to use `find_package()`
-4. **Create missing ports**: For dependencies not in vcpkg, create separate ports first
+4. **Create patches**: Remove vendored code and update build system to use `find_package()`
+5. **Disable unnecessary components**: Use CMake options or patches to disable tests, tools, and documentation
+6. **Create missing ports**: For dependencies not in vcpkg, create separate ports first
 
 **Example Patch Transformation:**
 ```cmake
@@ -224,6 +357,7 @@ target_link_libraries(mylib PRIVATE fmt)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(mylib PRIVATE fmt::fmt)
 ```
+
 
 ### Tool Dependencies
 For build-time tools, use vcpkg's tool acquisition:
@@ -290,9 +424,11 @@ Some libraries are incompatible with vcpkg's packaging model:
 
 ### Build System Integration  
 - **Add required host dependencies** for build system support
+- **Disable non-essential components** by default (tests, tools, documentation)
 - **Handle Windows DLL issues** with `vcpkg_check_linkage(ONLY_STATIC_LIBRARY)`
 - **Set SHA512 to 0 initially** for auto-calculation on first build
 - **Install usage files** with proper CMake integration examples
+- **Use vcpkg features** to allow optional component building when appropriate
 
 ### Quality Assurance
 - **Test across platforms** with different triplets
