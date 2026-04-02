@@ -1,0 +1,17 @@
+{
+  "name": "crashcatch",
+  "version": "1.4.0",
+  "description": "Lightweight header-only C++ crash handler with stack traces for Windows and Linux",
+  "homepage": "https://github.com/keithpotz/CrashCatch",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}
