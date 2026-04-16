@@ -309,22 +309,44 @@ error: File conflicts:
 
 ## Category 12: Missing From Baseline (Unexpected Pass)
 
-**Symptom**: A port that is listed as `fail` in `ci.baseline.txt` now passes. This is reported as a regression only in the step log:
+**Symptom**: A port that is listed as `fail` in `ci.baseline.txt` or `ci.feature.baseline.txt` now passes. There are two variants:
 
+### 12a: `ci.baseline.txt` unexpected pass
+
+Reported as a regression in the step log:
 ```
 REGRESSION: portname:x64-windows failed with MISSING_FROM_BASELINE.
 ```
 
 **Triage action**: Remove the `portname=fail` entry from `scripts/ci.baseline.txt` — the port is fixed.
 
-The file `scripts/ci.baseline.txt` in the repository root controls which ports are expected to fail.
+### 12b: `ci.feature.baseline.txt` unexpected pass
 
-**Format:**
+**Not** reported as a REGRESSION line. Instead, the job fails with exit code 1 and the step log contains:
+```
+ci.feature.baseline.txt:NNN:1: error: portname[core]:triplet passed but was marked expected to fail
+note: consider adding `portname=fail`, `portname:triplet=fail`, ... or equivalent skips
+```
+
+**Key diagnostic clue**: A job fails with exit code 1, no REGRESSION lines are found, no failure log artifact exists for the modified port, but the step log shows "passed but was marked expected to fail".
+
+**Triage action**: Remove the stale entry from `scripts/ci.feature.baseline.txt`.
+
+### Baseline files
+
+**`scripts/ci.baseline.txt`** — per-port expected failures:
 ```
 # Comment lines start with #
 portname=fail       # will skip in PR CI, attempt in scheduled
 portname=skip       # never built in CI
 portname=pass       # (same as not listed) must succeed
+```
+
+**`scripts/ci.feature.baseline.txt`** — per-feature/triplet expected failures:
+```
+portname(condition)=fail     # e.g., dimcli(windows & static)=fail
+portname[feature]:triplet=feature-fails
+portname[core,feat1,feat2]:triplet=combination-fails
 ```
 
 **Triplets covered by CI baseline:**
@@ -366,6 +388,67 @@ CMake Error at scripts/cmake/vcpkg_install_copyright.cmake:21 (file):
 **Diagnostic clue**: If a port fails with BUILD_FAILED on all Linux/Android triplets but succeeds (or fails for a *different* reason like POST_BUILD_CHECKS_FAILED) on Windows/macOS, check for a case mismatch in file paths used in the portfile.
 
 **Fix**: Correct the filename in `portfile.cmake` to match the exact casing in the upstream repository. Verify by checking the upstream repo's file listing.
+
+---
+
+## Category 14: Android NDK Macro Collisions
+
+**Symptom**: A port fails to compile only on Android triplets with cryptic syntax errors like `error: expected ')'` or `error: expected ';'` in code that looks syntactically correct.
+
+```
+include/mylib.h:324:17: error: expected ')'
+  324 |   Scalar(double si_value);
+      |                 ^
+/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/asm-generic/siginfo.h:101:27:
+note: expanded from macro 'si_value'
+  101 | #define si_value _sifields._rt._sigval
+```
+
+**Root cause**: The Android NDK's kernel headers (`<asm-generic/siginfo.h>`) define POSIX signal-related names as preprocessor macros. When library code uses these names as parameter names, member names, or variable names, the macro expansion causes syntax errors.
+
+**Known problematic macros** (from Android NDK `<siginfo.h>` / `<asm-generic/siginfo.h>`):
+- `si_value` → `_sifields._rt._sigval`
+- `si_pid` → `_sifields._kill._pid`
+- `si_uid` → `_sifields._kill._uid`
+- `si_addr` → `_sifields._sigfault._addr`
+- `si_band` → `_sifields._sigpoll._band`
+
+**Diagnostic clue**: Fails on all Android triplets (x64-android, arm64-android, arm-neon-android) but passes on Linux, Windows, and macOS. The error message contains a `note: expanded from macro` pointing to an NDK system header.
+
+**Fixes:**
+1. **Upstream (preferred)**: Rename the conflicting identifier in the library source
+2. **Patch**: Add `#undef si_value` (or equivalent) before the affected code
+3. **Baseline**: Add `portname:x64-android=fail` etc. if waiting for upstream fix
+
+---
+
+## Category 15: C++26/libc++ Transitive Include Breakage
+
+**Symptom**: A port fails to compile on macOS (Apple Clang) and Android (NDK Clang) with `error: no member named 'X' in namespace 'std'` for a well-known standard library function, but passes on Windows (MSVC) and Linux (GCC).
+
+```
+libs/mylib/header.h:1264:18: error: no member named 'upper_bound' in namespace 'std';
+    did you mean 'std::ranges::upper_bound'?
+```
+
+**Root cause**: The library compiles with `-std=c++2c` (C++26) or `-std=c++23`. In these modes, Clang/libc++ has removed transitive standard library includes that were previously available. A header that uses `std::upper_bound` without `#include <algorithm>` may have worked in C++20 through transitive inclusion but breaks in C++23/C++26.
+
+**Diagnostic clue**:
+- Compile command shows `-std=c++2c` or `-std=c++23`
+- Fails on Clang/libc++ platforms (macOS, Android) but passes on MSVC and GCC/libstdc++
+- The suggested replacement often shows a `std::ranges::` version of the function
+- Error is "no member named" for a common standard library function
+
+**Common missing includes:**
+- `std::upper_bound`, `std::lower_bound`, `std::sort` → `#include <algorithm>`
+- `std::string` → `#include <string>`
+- `std::vector` → `#include <vector>`
+- `std::unique_ptr` → `#include <memory>`
+- `std::cout` → `#include <iostream>`
+
+**Fixes:**
+1. **Upstream (preferred)**: Add the missing `#include` directive — this is always the correct fix
+2. **Patch**: Add a vcpkg patch that inserts the missing include
 
 ---
 

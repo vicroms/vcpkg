@@ -148,6 +148,9 @@ Use this as a reference for tone, depth, and structure.
    - 🟠 **High** — Failures on 2+ triplets, popular ports, or clear upstream API breaks
    - 🟡 **Medium** — Single-triplet failures with clear fixes
    - ℹ️ **Baseline/Investigate** — Expected failures, environment issues, or unclear root cause
+14. **Feature baseline unexpected passes**: When a job fails without REGRESSION lines, always scan the step log for `"passed but was marked expected to fail"` from `ci.feature.baseline.txt`. Report these under a separate "🟡 Unexpected Passes (Baseline Cleanup Required)" section, not as regressions or unrelated failures. The fix is to remove the stale entry from `scripts/ci.feature.baseline.txt`.
+15. **Android-specific macro collisions**: When a port fails only on Android with syntax errors and the compiler note says `"expanded from macro"` pointing to an NDK system header, this is a macro name collision — not a code bug in the traditional sense. Report it as an Android-specific issue with the fix being to rename the conflicting identifier upstream.
+16. **C++26 transitive include issues**: When a port compiles with `-std=c++2c` and fails on Clang/libc++ (macOS, Android) but passes on MSVC/GCC, suspect missing standard library includes that were previously available transitively. Check the compile command for the C++ standard flag.
 
 ---
 
@@ -183,3 +186,6 @@ When analyzing a new build, scan for these high-frequency patterns before deep-d
 | `must install xorg-macros` | autotools ports | CI image missing xorg-dev package |
 | Build truncated, no error message | OOM or timeout | Use `DISABLE_PARALLEL` or check resources |
 | Many ports → same dependency fails | dep chain | Find root dep; rest are downstream casualties |
+| `passed but was marked expected to fail` | Job exit code 1, no REGRESSION lines | Stale `ci.feature.baseline.txt` entry — remove it |
+| `error: expected ')'` + `expanded from macro` on Android | Android NDK macro collision | POSIX signal macros (`si_value`, etc.) clash with code identifiers |
+| `no member named 'X' in namespace 'std'` + `-std=c++2c` | Clang/libc++ C++26 mode | Missing `#include` — transitive includes removed in C++26 |
