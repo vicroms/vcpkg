@@ -466,6 +466,77 @@ Use these levels when reporting failures:
 
 ---
 
+## Category 16: Version Validation Failures
+
+**Symptom**: The "Validate version files" task fails (not a port build failure). This can cause the x86-windows job (or whichever runs validation first) to fail before any ports are tested.
+
+```
+ports/arrow-adbc/vcpkg.json: error: arrow-adbc@22 was not found in versions database
+versions/baseline.json: error: arrow-adbc is assigned 16, but the local port is 22
+note: run 'vcpkg x-add-version arrow-adbc' to add the new port version
+```
+
+**Root cause**: The PR updated the port version in `vcpkg.json` but didn't regenerate the version database files (`versions/{initial}/{portname}.json` and `versions/baseline.json`).
+
+**Diagnostic clue**: The failed task is "Validate version files" (not "Test Modified Ports"). The GitHub Actions "Check" job also fails for the same reason. No failure log artifacts are produced for this type of failure.
+
+**Fix**: Run `vcpkg x-add-version {portname}` and commit the updated version files.
+
+---
+
+## Category 17: Missing Build Tool in CI Environment
+
+**Symptom**: A port or feature requires an external tool (Go, Rust, Java, etc.) that isn't installed or isn't properly configured on the CI agent.
+
+### Go not found (macOS, Android)
+```
+Could not find GO_BIN using the following names: go
+```
+
+### Go permission denied (Linux)
+```
+go: could not create module cache: mkdir /go: permission denied
+```
+
+### Java not found
+```
+Could not find a Java Runtime Environment (JRE)
+```
+
+**Diagnostic clue**: Core port builds pass on all triplets, but specific features requiring the external tool fail. The failure may appear different on different platforms (tool not found vs. permission denied) but the root cause is the same: the tool isn't usable in CI.
+
+**Common occurrences:**
+- Go-based features (e.g., `arrow-adbc[flightsql]`, `arrow-adbc[snowflake]`, `arrow-adbc[bigquery]`)
+- Java-based features (e.g., `zookeeper`)
+- Rust components (requires `cargo` in PATH)
+
+**Fix**: Mark the affected features as expected failures in `scripts/ci.feature.baseline.txt` for all triplets where the tool isn't available. Use platform-wide entries when possible:
+```
+portname[feature]=feature-fails  # Go/Java/Rust required but not available in CI
+```
+
+---
+
+## Category 18: Feature Baseline Coverage Gaps
+
+**Symptom**: Feature tests fail on multiple triplets, but `ci.feature.baseline.txt` only has entries for a subset of them. The uncovered triplets cause the job to fail with exit code 1.
+
+**Example**: A feature baseline has:
+```
+arrow-adbc[bigquery]:arm64-linux=feature-fails
+arrow-adbc[flightsql]:arm64-linux=feature-fails
+```
+But the same features also fail on `x64-linux`, `arm64-osx`, and Android triplets — which have no baseline entries.
+
+**Diagnostic clue**: Multiple jobs fail with no REGRESSION lines. The step logs show feature test BUILD_FAILEDs on triplets not covered by `ci.feature.baseline.txt`. Compare the set of failing triplets against the baseline entries.
+
+**Fix**: Expand the feature baseline entries to cover all affected triplets. If the failure is platform-wide (e.g., tool not available on any non-Windows CI agent), use entries without triplet qualifiers:
+```
+portname[feature]=feature-fails  # Applies to all triplets
+```
+
+---
+
 ## Common vcpkg CI Triplet Notes
 
 | Triplet | Notes |

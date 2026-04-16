@@ -264,6 +264,18 @@ libxt/
 └── stdout-x64-windows.log
 ```
 
+**For feature test failures (e.g., arrow-adbc_flightsql):**
+```
+arrow-adbc_flightsql/
+├── issue_body.md          ← markdown summary of the failure (human-readable)
+├── tested-spec.txt        ← exact feature combination tested (e.g., "arrow-adbc[core,flightsql]:x64-linux")
+├── stdout-x64-linux.log   ← may or may not be present
+├── config-x64-linux-*.log ← may or may not be present
+└── build-x64-linux-*.log  ← may or may not be present
+```
+
+Feature test artifacts use naming suffixes to indicate the feature combination: `portname_cpp`, `portname_all_3`, `portname_flightsql`, etc. The `tested-spec.txt` file always contains the exact `portname[features]:triplet` spec that was tested. The `issue_body.md` contains a markdown-formatted summary including the error output — read this first for quick triage.
+
 ### Step 5: Analyze Log Content — Two-Phase Approach
 
 **Phase 1: Classify all failures quickly (one pass)**
@@ -519,7 +531,10 @@ Use the `create` tool to write the full report content to this path. The report 
 - **Two baseline files**: vcpkg CI uses **two** baseline files — `scripts/ci.baseline.txt` (per-port failures) and `scripts/ci.feature.baseline.txt` (per-feature/triplet failures). Always check both when classifying failures. Jobs can fail with exit code 1 and **no REGRESSION lines** when a port unexpectedly passes but is still marked as `fail` in `ci.feature.baseline.txt`. The error pattern in the step log is: `"passed but was marked expected to fail"`.
 - **Android NDK macro collisions**: The Android NDK defines POSIX signal-related names (`si_value`, `si_pid`, `si_uid`, etc.) as preprocessor macros in `<asm-generic/siginfo.h>`. These can collide with C++ parameter names or member names, causing cryptic syntax errors like `error: expected ')'`. This is Android-specific — Linux, Windows, and macOS don't define these as macros.
 - **C++26/libc++ transitive include breakage**: When a library compiles with `-std=c++2c` (C++26) using Clang/libc++ (macOS, Android), previously-transitive standard library includes may no longer be available. A missing `#include <algorithm>` that worked in C++20 may fail in C++26. MSVC and GCC/libstdc++ are more permissive about transitive includes.
-- **Feature test failure artifacts**: When the CI runs feature tests (testing specific feature combinations), failure log artifacts use suffixed names like `portname_cpp`, `portname_all_3` instead of the base port name. These directories may contain `issue_body.md` (with the build error) and `tested-spec.txt` (the feature combination tested) instead of traditional build log files.
+- **Feature test failure artifacts**: When the CI runs feature tests (testing specific feature combinations), failure log artifacts use suffixed names like `portname_cpp`, `portname_all_3` instead of the base port name. These directories may contain `issue_body.md` (with the build error) and `tested-spec.txt` (the feature combination tested) instead of traditional build log files. Read `issue_body.md` first for quick triage — it contains a human-readable summary of the failure including error output.
+- **Version validation failures**: The "Validate version files" task can fail *before any ports are tested* if the PR updated `vcpkg.json` but didn't run `vcpkg x-add-version`. This produces errors like `portname@N was not found in versions database` and `baseline.json: error: portname is assigned M, but the local port is N`. No failure log artifacts are produced. The fix is always `vcpkg x-add-version {portname}`.
+- **Missing build tools (Go, Java, Rust)**: Some port features require external tools not installed on CI agents. Go is not available on macOS/Android agents ("Could not find GO_BIN") and has permission issues on Linux ("mkdir /go: permission denied"). When core port builds pass but specific features fail across all non-Windows triplets with tool-not-found errors, mark them as `feature-fails` in `ci.feature.baseline.txt`.
+- **Feature baseline coverage gaps**: When `ci.feature.baseline.txt` entries only cover a subset of triplets (e.g., only `arm64-linux`), the same features failing on other triplets (e.g., `x64-linux`, `arm64-osx`, Android) will cause unexpected job failures with no REGRESSION lines. Always check whether baseline entries cover *all* affected triplets, not just one.
 - **Portfile anti-patterns — do NOT recommend these as fixes:**
   - `set(VCPKG_BUILD_TYPE release)` — this is **only** appropriate for header-only libraries. Ports that produce binary output (`.lib`, `.a`, `.dll`, `.so`) must build both debug and release configurations. Never suggest adding this to fix mismatched-binary warnings.
   - `set(VCPKG_POLICY_* enabled)` — policy overrides are escape hatches for exceptional cases, not standard practice. Most ports should not set any `VCPKG_POLICY_*` variable. When a post-build check fails, the correct fix is almost always to fix the underlying issue (e.g., correct `vcpkg_cmake_config_fixup()` arguments, install missing files), not to suppress the warning with a policy override.
