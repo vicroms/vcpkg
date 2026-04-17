@@ -149,6 +149,26 @@ ld: symbol(s) not found for architecture arm64
 - **Static vs. dynamic mismatch**: Port links against static lib but needs dynamic (or vice versa)
 - **Missing dependency in vcpkg.json**: Library calls into another library not declared as a dependency
 - **Symbol visibility**: On Linux/macOS, symbols not exported with `__attribute__((visibility("default")))`
+- **Debug/release runtime mismatch (MSVC-only)**: `error LNK2038: mismatch detected for 'RuntimeLibrary'` or `'_ITERATOR_DEBUG_LEVEL'` — objects compiled with debug CRT (`MDd`/`MTd`) are linked against objects compiled with release CRT (`MD`/`MT`). Common when a port builds host tools (code generators) as part of the main build and mixes configurations. Fix by restricting tool builds to release via `OPTIONS_RELEASE` in `vcpkg_cmake_configure()`.
+
+### Debug/Release CRT Mismatch (MSVC-only)
+```
+tl_writer_cpp.lib(tl_writer_td.cpp.obj) : error LNK2038: mismatch detected for '_ITERATOR_DEBUG_LEVEL': value '2' doesn't match value '0' in generate_mtproto.cpp.obj
+tl_writer_cpp.lib(tl_writer_td.cpp.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MDd_DynamicDebug' doesn't match value 'MD_DynamicRelease' in generate_mtproto.cpp.obj
+```
+
+**Diagnostic clue**: Fails on all Windows triplets **except** release-only (`x64-windows-release`). Passes on Linux/macOS/Android because GCC/Clang don't enforce debug/release ABI checks at link time.
+
+**Fix**: Use `OPTIONS_RELEASE` / `OPTIONS_DEBUG` in `vcpkg_cmake_configure()` to build host tools only in release configuration:
+```cmake
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS_RELEASE
+        -DBUILD_TOOLS=ON
+    OPTIONS_DEBUG
+        -DBUILD_TOOLS=OFF
+)
+```
 
 ---
 

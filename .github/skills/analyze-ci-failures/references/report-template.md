@@ -153,6 +153,7 @@ Use this as a reference for tone, depth, and structure.
 16. **C++26 transitive include issues**: When a port compiles with `-std=c++2c` and fails on Clang/libc++ (macOS, Android) but passes on MSVC/GCC, suspect missing standard library includes that were previously available transitively. Check the compile command for the C++ standard flag.
 17. **Version validation failures**: When the "Validate version files" task fails, report it as a separate issue (not a build regression). The fix is always `vcpkg x-add-version {portname}`. No failure log artifacts are produced for this failure type.
 18. **Feature baseline coverage gaps**: When feature tests fail on multiple triplets but `ci.feature.baseline.txt` only covers some, explicitly list which triplets are missing entries and recommend expanding the baseline. Don't just say "update the baseline" — show which entries need to be added.
+19. **Debug/release CRT mismatch**: When a port fails on all Windows triplets except `x64-windows-release` with `LNK2038` runtime library mismatch errors, the root cause is host tools (code generators) mixing debug and release objects. Recommend using `OPTIONS_RELEASE`/`OPTIONS_DEBUG` in `vcpkg_cmake_configure()` to restrict tool building to the release configuration.
 
 ---
 
@@ -194,3 +195,4 @@ When analyzing a new build, scan for these high-frequency patterns before deep-d
 | `was not found in versions database` or `baseline.json: error: ... is assigned M, but the local port is N` | Version validation task | PR didn't run `vcpkg x-add-version` — no port builds attempted |
 | `Could not find GO_BIN` or `mkdir /go: permission denied` | Go-dependent features | Go not available/writable in CI — mark features as `feature-fails` |
 | Feature tests fail on triplets not in `ci.feature.baseline.txt` | Job exit code 1, no REGRESSION lines | Feature baseline entries only cover some triplets — expand them |
+| `LNK2038: mismatch detected for 'RuntimeLibrary'` or `'_ITERATOR_DEBUG_LEVEL'` | MSVC debug build, passes on release-only triplet | Debug/release CRT mismatch in host tools — use `OPTIONS_RELEASE` to build tools only in release |
