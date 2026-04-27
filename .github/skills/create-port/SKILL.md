@@ -745,6 +745,65 @@ git log -1 --format=%ci <commit-sha>
 # GitHub API also shows "date" field in commit info
 ```
 
+## Testing Ports After Packaging
+
+**Always test ports after packaging** to ensure CMake integration works and all features function correctly.
+
+### Basic Build Test
+After successful packaging, verify the basic build:
+```powershell
+# Clean installation
+vcpkg remove package-name:x64-windows
+vcpkg install package-name
+
+# Verify installation
+Get-ChildItem "installed/x64-windows/share/package-name"  # should exist
+Get-ChildItem "installed/x64-windows/lib"                 # should have .lib files
+```
+
+### Feature Testing
+When a port defines features, test each feature combination:
+
+```powershell
+# Test individual features
+vcpkg install "package-name[feature1]"
+vcpkg install "package-name[feature2]"
+vcpkg install "package-name[feature1,feature2]"
+
+# Verify feature dependencies were pulled in
+# Example: standalone-server feature should have oatpp libraries installed
+Get-ChildItem "installed/x64-windows/lib/oatpp*"
+```
+
+### CMake Integration Test
+Create a simple test consumer to verify CMake targets work:
+
+```cmake
+# test-consumer/CMakeLists.txt
+cmake_minimum_required(VERSION 3.15)
+project(test-consumer)
+
+find_package(package-name CONFIG REQUIRED)
+add_executable(test main.cpp)
+target_link_libraries(test PRIVATE package-name::package-name)
+```
+
+```powershell
+# Build test consumer
+mkdir test-consumer
+cd test-consumer
+cmake -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake .
+cmake --build . --config Release
+```
+
+### Testing Checklist
+- [ ] Basic build completes without warnings
+- [ ] Each feature can be installed individually
+- [ ] Multiple features can be combined: `[feat1,feat2]`
+- [ ] CMake integration works (find_package and target_link_libraries)
+- [ ] Usage file provides clear integration examples
+- [ ] Port installs correctly on clean system (vcpkg remove + reinstall)
+
 ## Branch Workflow
 
 **Always create a topic branch for port work** to avoid conflicts when pulling the latest upstream master:

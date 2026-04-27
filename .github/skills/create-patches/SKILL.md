@@ -438,6 +438,49 @@ MYLIB_API void public_function();
 
 **Manual Process:** Remove vendored directories, update build system to use `find_package()`, update vcpkg.json dependencies
 
+### Scenario 4: Feature-Related Patches (Conditional Compilation)
+
+When implementing ports with optional features, patches may be needed to add CMake options for feature control:
+
+**Example: Adding standalone-server feature support**
+
+The upstream project expects a `BUILD_STANDALONE_SERVER` option. Create a patch adding this:
+
+```diff
+@@ -42,8 +42,11 @@ endif()
+ 
+ # Server components
+-if(BUILD_SERVER)
++option(BUILD_STANDALONE_SERVER "Build standalone GraphQL server" ON)
++
++if(BUILD_SERVER)
+     add_subdirectory(src/gqlxy/server)
++     if(BUILD_STANDALONE_SERVER)
++         target_compile_definitions(gqlxy_server PRIVATE ENABLE_STANDALONE_SERVER)
++     endif()
+ endif()
+```
+
+Then in portfile.cmake:
+```cmake
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS 
+    FEATURES 
+        standalone-server BUILD_STANDALONE_SERVER
+)
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        ${FEATURE_OPTIONS}
+)
+```
+
+**Key Pattern:**
+- Feature option in patch adds CMake `option()` for user control
+- `vcpkg_check_features` converts feature selections to CMake `-D` flags
+- Proper dependency declaration in vcpkg.json ensures feature dependencies are available
+- Release builds prioritized for feature tests (debug builds may fail on resource-constrained systems)
+
 ## Method Comparison
 
 **Use Build Analysis When:**
