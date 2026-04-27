@@ -94,7 +94,7 @@ ports/{package-name}/
 ├── vcpkg.json              # Package manifest with auto-detected dependencies
 ├── portfile.cmake          # Build script using appropriate vcpkg helpers
 ├── usage                   # CMake integration guide with unofficial:: targets
-└── patches/                # Source patches (if needed)
+└── *.patch                 # Source patches at port root (if needed)
 ```
 
 **Auto-Generated Dependencies:**
@@ -442,7 +442,7 @@ vcpkg_find_acquire_program(BISON)
 
 For source modifications, use the dedicated `create-patches` skill:
 - **When to use**: Fixing build issues, adding CMake exports, removing vendored dependencies
-- **Best practice**: Place patches in `ports/package-name/patches/` directory
+- **Best practice**: Place patches directly in the `ports/package-name/` directory (not in a subdirectory)
 - **Naming**: Number patches if order matters: `001-fix-cmake.patch`, `002-remove-vendor.patch`
 - **Integration**: Use `PATCHES` parameter in `vcpkg_from_github()`
 
@@ -631,6 +631,24 @@ This applies even for minor changes like adding a usage file or fixing install p
 - ✅ CMake targets use `unofficial::` namespace
 - ✅ License files in `share/package-name/copyright`
 - ✅ Clean directory structure (no empty debug folders)
+
+## Branch Workflow
+
+**Always create a topic branch for port work** to avoid conflicts when pulling the latest upstream master:
+
+```powershell
+# Create a topic branch before starting port work
+git checkout -b ports/{package-name} master
+
+# ... create port files, test, iterate ...
+
+# Commit when ready
+git add ports/{package-name} versions/
+git commit -m "[{package-name}] Add new port"
+```
+
+This keeps the master branch clean for syncing with upstream (`microsoft/vcpkg`) and
+isolates port work into reviewable branches.
 
 ## Next Steps
 

@@ -72,7 +72,7 @@ ports/package-name/
 ├── vcpkg.json             # Current manifest
 ├── portfile.cmake         # Current build script
 ├── usage                  # Usage documentation
-└── patches/               # Existing patches (if any)
+└── *.patch                # Existing patches at port root (if any)
 ```
 
 ### Analysis Process
@@ -123,12 +123,12 @@ PORT DIRECTORY: ports/rapidjson/
 2. Header Installation Path - Headers installed to wrong path
 
 📋 PATCH RECOMMENDATIONS:
-Creating: patches/001-add-cmake-exports.patch
-Creating: patches/002-fix-header-paths.patch
+Creating: 001-add-cmake-exports.patch
+Creating: 002-fix-header-paths.patch
 
 ⚙️ NEXT STEPS:
 1. Apply patches to portfile.cmake
-2. Test with: vcpkg install rapidjson --debug
+2. Test with: vcpkg install rapidjson
 3. Verify CMake integration works
 ```
 
@@ -187,17 +187,17 @@ git format-patch HEAD~2 --output-directory ../patches
 
 **Step 4: Organize and Apply Patches**
 ```bash
-# Place in port directory structure
-ports/package-name/patches/
+# Place in port directory (patches at root, not in subdirectory)
+ports/package-name/
 ├── 001-fix-cmake-exports.patch
 ├── 002-fix-installation-paths.patch
 └── 003-add-windows-support.patch
 
 # Apply in portfile.cmake
 PATCHES
-    patches/001-fix-cmake-exports.patch
-    patches/002-fix-installation-paths.patch
-    patches/003-add-windows-support.patch
+    001-fix-cmake-exports.patch
+    002-fix-installation-paths.patch
+    003-add-windows-support.patch
 ```
 
 ## Common Patch Patterns & Best Practices
@@ -265,7 +265,7 @@ target_link_libraries(mylib PRIVATE nlohmann_json::nlohmann_json)
 ```bash
 # Local testing
 cd source-directory
-git apply ../ports/package-name/patches/001-fix-build.patch
+git apply ../ports/package-name/001-fix-build.patch
 
 # vcpkg testing
 vcpkg install package-name
@@ -298,7 +298,7 @@ install(TARGETS mypackage
 )
 
 git add . && git commit -m "Add CMake exports"
-git format-patch HEAD~1 --output-directory=../../../../ports/mypackage/patches/
+git format-patch HEAD~1 --output-directory=../../../../ports/mypackage/
 ```
 
 ### Scenario 2: Windows DLL Export Issues
@@ -355,8 +355,8 @@ When updating library versions:
 # - 001-fix-cmake-exports.patch: Add missing CMake target exports
 # - 002-windows-dll-fix.patch: Fix Windows DLL symbol exports  
 PATCHES
-    patches/001-fix-cmake-exports.patch
-    patches/002-windows-dll-fix.patch  
+    001-fix-cmake-exports.patch
+    002-windows-dll-fix.patch  
 ```
 
 **In patch commit messages:**
@@ -375,7 +375,10 @@ Fix CMake target exports for vcpkg compatibility
 After creating patches using build failure analysis:
 ```bash
 # Test fixed build
-vcpkg install package-name --debug
+vcpkg install package-name
+
+# Use --debug only when investigating vcpkg internal issues
+# vcpkg install package-name --debug
 
 # Verify integration
 # Create test CMakeLists.txt:
