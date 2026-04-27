@@ -312,33 +312,42 @@ vcpkg_cmake_configure(
 ```
 
 **Method 3: Patches (When No Options Exist)**
-When upstream doesn't provide control options, create a patch that adds an option:
-```cmake
-# Example patch: add BUILD_SAMPLES option to upstream CMakeLists.txt
-# Original:  if(PROJECT_IS_TOP_LEVEL)
-#                add_subdirectory(samples)
-#            endif()
-# Patched:   option(BUILD_SAMPLES "Build sample applications" ON)
-#            ...
-#            if(PROJECT_IS_TOP_LEVEL AND BUILD_SAMPLES)
-#                add_subdirectory(samples)
-#            endif()
-```
-Then disable via `-DBUILD_SAMPLES=OFF` in portfile.cmake. This is preferred over
-`file(REMOVE_RECURSE)` hacks because it produces a clean, reviewable patch and
-avoids CMake errors when the upstream `add_subdirectory()` references a removed directory.
+When upstream doesn't provide control options, create a patch that adds an option. This is preferred over post-build `file(REMOVE_RECURSE)` because:
+- Produces a clean, reviewable patch showing exactly what changes
+- Avoids CMake errors when `add_subdirectory()` references a removed directory
+- Respects upstream code structure while making it vcpkg-compatible
 
+Example patch adding `BUILD_SAMPLES` option:
+```diff
+@@ -69,7 +69,10 @@ if(ENABLE_COVERAGE)
+     include(cmake/coverage.cmake)
+ endif()
+ 
+ if(PROJECT_IS_TOP_LEVEL)
++    option(BUILD_SAMPLES "Build sample applications" ON)
++    if(BUILD_SAMPLES)
+-    add_subdirectory(samples)
++        add_subdirectory(samples)
++    endif()
+ endif()
+```
+
+The patch:
+1. Adds CMake `option()` making component buildable but disabled by default
+2. Wraps the conditional build inside the new option
+3. Maintains indentation for readability
+
+Then disable in portfile.cmake:
 ```cmake
-# In portfile.cmake
 vcpkg_from_github(
     # ... other parameters ...
     PATCHES
-        disable-samples.patch
+        002-disable-samples.patch
 )
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        -DBUILD_SAMPLES=OFF
+        -DBUILD_SAMPLES=OFF  # Disable by default for vcpkg
 )
 ```
 
@@ -413,12 +422,43 @@ target_link_libraries(mylib PRIVATE fmt::fmt)
 #include <mylib/mylib.h>
 ```
 
-**Verifying CMake target names:** Do NOT guess the target name exported by a vcpkg port. Always check the installed CMake config to get the exact target:
+**Verifying CMake target names:** Do NOT guess the target name exported by a vcpkg port. Exported target names can differ from port names, causing cryptic CMake errors during downstream builds. Always verify by examining installed CMake config files:
+
 ```powershell
-# Find the actual target name
-Get-Content "installed/x64-windows/share/<port>/<port>-config.cmake"
-# Or look for *Targets.cmake files
+# After building a dependency port, check the actual exported targets:
+Get-Content "installed/x64-windows/share/<port>/<port>Targets.cmake"
+# Look for: add_library(namespace::targetname ...)
 ```
+
+**Common Mismatches:**
+| Port Name | Exported Target | Why |
+|-----------|-----------------|-----|
+| `unofficial-spirv-reflect` | `unofficial::spirv-reflect` | Namespace doesn't duplicate `::` |
+| `nlohmann-json` | `nlohmann_json::nlohmann_json` | Double underscore in internal CMake |
+
+**Creating Target Aliases When Needed:**
+When upstream code expects a different target name than what vcpkg port exports, create an ALIAS in a patch:
+
+```cmake
+# In cmake/dependencies.cmake or CMakeLists.txt
+find_package(gqlxy-core CONFIG REQUIRED)
+# Upstream expects gqlxy::core, but port exports gqlxy::gqlxy_core
+add_library(gqlxy::core ALIAS gqlxy::gqlxy_core)
+```
+
+This is safer than modifying upstream code because:
+- Aliases are non-invasive and don't break upstream builds
+- Patch remains focused and reviewable
+- Downstream projects using the patched port get the expected target names
+- Future upstream changes don't silently break alias
+
+**Debugging CMake Target Issues:**
+When a build fails with "target X not found":
+1. Check if the dependency port actually installed (look in `installed/<triplet>/share/<port>/`)
+2. Verify the exact exported target name in `<port>Targets.cmake` or `<port>-config.cmake`
+3. Confirm `find_package()` or `add_library(ALIAS)` uses the correct name
+4. Check that dependency is listed in `vcpkg.json` dependencies
+
 For example, `unofficial-spirv-reflect` exports `unofficial::spirv-reflect` (not `unofficial::spirv-reflect::spirv-reflect`), and its CMake config sets `INTERFACE_INCLUDE_DIRECTORIES` so the header is included as `<spirv_reflect.h>` directly.
 
 
@@ -452,6 +492,46 @@ For source modifications, use the dedicated `create-patches` skill:
 - **Best practice**: Place patches directly in the `ports/package-name/` directory (not in a subdirectory)
 - **Naming**: Number patches if order matters: `001-fix-cmake.patch`, `002-remove-vendor.patch`
 - **Integration**: Use `PATCHES` parameter in `vcpkg_from_github()`
+
+### Patch File Best Practices
+
+**Patch Naming and Ordering:**
+```
+ports/gqlxy-server/
+  ├── 001-use-find-package-for-gqlxy-core.patch   # Applied first
+  ├── 002-disable-samples.patch                    # Applied second
+  └── portfile.cmake
+```
+Numeric prefixes ensure patches are applied in deterministic order when multiple exist.
+
+**Patch Generation and Line Endings:**
+- Always use `git format-patch -o <directory>` to write to a file (not stdout)
+- **Never** pipe `git format-patch` through PowerShell on Windows—it corrupts line endings
+- Normalize patches to LF-only line endings; vcpkg's patch utility requires Unix-style line endings
+- Test patches locally in extracted source before adding to portfile
+
+**Patch Context Requirements:**
+Patches must have correct line numbers and surrounding context to apply successfully. Use `@@ -N,M +P,Q @@` markers that match actual file structure:
+```diff
+@@ -69,7 +69,10 @@ if(ENABLE_COVERAGE)
+     include(cmake/coverage.cmake)
+ endif()
+ 
+ if(PROJECT_IS_TOP_LEVEL)
++    option(BUILD_SAMPLES "Build sample applications" ON)
++    if(BUILD_SAMPLES)
+```
+Off-by-one errors or truncated context cause "patch failed" or "corrupt patch" errors.
+
+**Verifying Patch Applicability:**
+Before committing patches, verify they apply cleanly:
+```powershell
+# Extract source and test patch application
+tar -xzf source.tar.gz
+cd source
+git init && git add -A && git commit -m "original"
+git apply ..path/to/patch.patch  # Test without modifying
+```
 
 ## Unsuitable Libraries
 

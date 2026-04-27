@@ -155,6 +155,56 @@ patch files directly. Do NOT pipe `git format-patch --stdout` through PowerShell
 `git format-patch --stdout | Set-Content ...`) because PowerShell corrupts line endings,
 producing a single-line file that `git apply` cannot parse.
 
+### Patch File Best Practices
+
+**Naming Convention:**
+Patches should be numbered sequentially with descriptive names at the port root:
+```
+ports/package-name/
+├── 001-use-find-package-for-deps.patch
+├── 002-disable-samples.patch
+└── 003-add-windows-exports.patch
+```
+Numeric prefixes ensure patches apply in deterministic order when multiple patches exist.
+
+**Line Ending Normalization:**
+vcpkg's patch utility requires Unix-style LF line endings, not Windows CRLF:
+```powershell
+# PowerShell: Normalize to LF only
+$text = [System.IO.File]::ReadAllText('path/to/file.patch')
+$text = $text -replace "`r`n", "`n"
+[System.IO.File]::WriteAllText('path/to/file.patch', $text, 
+    [System.Text.UTF8Encoding]::new($false))
+```
+
+**Patch Context Matching:**
+Patches fail silently if context lines don't match exactly. Verify patch headers have correct line numbers:
+```diff
+@@ -69,7 +69,10 @@  # Line 69, 7 lines before → 69, 10 lines after
+ if(ENABLE_COVERAGE)
+     include(cmake/coverage.cmake)
+ endif()
+```
+Mismatched line numbers cause "patch failed" errors even if content exists elsewhere in file.
+
+**Verifying Patches Before Committing:**
+Always test patches locally in extracted source before adding to portfile:
+```powershell
+# Extract source
+tar -xzf archive.tar.gz
+cd extracted-source
+
+# Initialize git and commit original
+git init
+git add -A
+git -c user.email="patch@vcpkg" -c user.name="vcpkg" commit -m "original"
+
+# Test patch application (non-destructive)
+git apply path/to/patch.patch
+
+# If successful, proceed. If not, fix context and regenerate
+```
+
 ### Method 2: Using Fresh Clone (Traditional Method)
 
 **Step 1: Create Local Clone**
@@ -209,6 +259,31 @@ PATCHES
 
 ### Pattern Library
 
+**0. Creating CMake Target Aliases (For Target Name Mismatches):**
+When upstream code expects a CMake target that differs from what the vcpkg port exports:
+```cmake
+# Problem: Upstream expects gqlxy::core but port exports gqlxy::gqlxy_core
+# Solution: Create an ALIAS target
+
+find_package(gqlxy-core CONFIG REQUIRED)
+# Map the actual exported target to the expected name
+add_library(gqlxy::core ALIAS gqlxy::gqlxy_core)
+```
+This pattern is safer than modifying upstream CMake because:
+- Aliases are non-invasive and read-only
+- Patches remain focused and reviewable
+- Doesn't break upstream direct builds
+- Future upstream changes won't silently break the alias
+
+**Debugging CMake Targets:**
+To verify what targets a vcpkg port actually exports:
+```powershell
+# After port installation, examine the exports
+Get-Content installed/<triplet>/share/<port>/<port>Targets.cmake | 
+    Select-String "add_library"
+# Look for: add_library(namespace::targetname STATIC IMPORTED)
+```
+
 **1. CMake Export Fixes:**
 ```cmake
 install(TARGETS ${PROJECT_NAME}
@@ -260,6 +335,41 @@ target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(mylib PRIVATE nlohmann_json::nlohmann_json)
 ```
+
+**6. Disabling Build Components (Samples, Tests, Examples):**
+vcpkg distributions should disable non-essential components by default. When upstream doesn't provide CMake options, create a patch:
+```cmake
+# Before: Unconditionally builds samples
+if(PROJECT_IS_TOP_LEVEL)
+    add_subdirectory(samples)
+endif()
+
+# After: Add option to disable
+option(BUILD_SAMPLES "Build sample applications" ON)
+if(PROJECT_IS_TOP_LEVEL AND BUILD_SAMPLES)
+    add_subdirectory(samples)
+endif()
+```
+
+Then disable in portfile.cmake:
+```cmake
+vcpkg_from_github(
+    SOURCE_PATH "${SOURCE_PATH}"
+    PATCHES
+        002-disable-samples.patch
+)
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        -DBUILD_SAMPLES=OFF
+)
+```
+
+**Why This Pattern Matters:**
+- Samples/tests often consume excessive memory during linking on constrained environments
+- Disabling them via CMake is cleaner than post-build deletion (no CMake errors from missing directories)
+- Users can still enable if needed via CMake options in consumer projects
+- Keeps vcpkg distributions minimal and focused on library delivery
 
 ### Testing Patches
 ```bash
