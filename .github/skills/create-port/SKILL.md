@@ -83,8 +83,15 @@ Auto-detects build systems and adds appropriate vcpkg dependencies:
 
 **Version Scheme Selection:**
 - **Releases found** → `"version": "1.2.3"` (semantic versioning)
-- **Date releases** → `"version-date": "2026-03-16"` 
-- **No releases** → `"version-date": "YYYY-MM-DD"` (latest commit)
+- **Date releases** → `"version-date": "YYYY-MM-DD"` (release date)
+- **No releases** → `"version-date": "YYYY-MM-DD"` (commit date, not version)
+
+**IMPORTANT**: For projects without official GitHub releases, use `version-date` with the **commit date** (YYYY-MM-DD format), NOT a semantic version. This is critical because:
+- The project may still be in development and lacks version numbers
+- Future updates will use newer commit dates automatically
+- Prevents version conflicts with semantic versions used later
+
+Example: If the latest commit is from 2026-04-21, use `"version-date": "2026-04-21"`
 
 ### Step 3: Port Structure Generation
 
@@ -631,6 +638,32 @@ This applies even for minor changes like adding a usage file or fixing install p
 - ✅ CMake targets use `unofficial::` namespace
 - ✅ License files in `share/package-name/copyright`
 - ✅ Clean directory structure (no empty debug folders)
+- ✅ Correct version scheme (`version` for releases, `version-date` for commits)
+
+## Version-Date Guidance
+
+When a project has no official GitHub releases, use `version-date` with the commit date:
+
+```json
+{
+  "name": "my-library",
+  "version-date": "2026-04-21",
+  "description": "A library still in development"
+}
+```
+
+**Key Points:**
+- Use format `YYYY-MM-DD` (ISO 8601 date of the commit)
+- Do NOT use semantic versions (e.g., `"version": "0.1.0"`) for unreleased projects
+- The commit date becomes the version identifier for `vcpkg x-add-version` workflow
+- Future updates use newer dates automatically, avoiding conflicts
+
+**To find the commit date:**
+```powershell
+# Check the commit info
+git log -1 --format=%ci <commit-sha>
+# GitHub API also shows "date" field in commit info
+```
 
 ## Branch Workflow
 
