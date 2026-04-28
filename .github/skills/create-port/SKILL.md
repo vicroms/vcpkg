@@ -6,6 +6,29 @@ argument-hint: 'GitHub URL (e.g., "https://github.com/owner/repo")'
 
 # New Port Creator
 
+## ⚠️ IMPORTANT: Branch Workflow
+
+**Always create a topic branch for port work** to avoid conflicts with upstream master:
+
+```powershell
+# CREATE A TOPIC BRANCH BEFORE STARTING
+git checkout -b ports/{package-name} master
+
+# ... create and test port files ...
+
+# Commit when ready
+git add ports/{package-name} versions/
+git commit -m "[{package-name}] Add new port"
+```
+
+This ensures:
+- ✅ Master branch stays clean for syncing with `microsoft/vcpkg` upstream
+- ✅ Your port work is isolated in a reviewable, mergeable branch
+- ✅ Easy to update if upstream master changes
+- ✅ Prevents merge conflicts and accidental overwrites
+
+**Do not work directly on master branch!**
+
 ## When to Use
 
 - Adding a new open-source library to the vcpkg registry
@@ -816,23 +839,11 @@ cmake --build . --config Release
 - [ ] Usage file provides clear integration examples
 - [ ] Port installs correctly on clean system (vcpkg remove + reinstall)
 
-## Branch Workflow
+## Branch Workflow (Required)
 
-**Always create a topic branch for port work** to avoid conflicts when pulling the latest upstream master:
+**See the IMPORTANT notice at the top of this document** - always use topic branches for port work.
 
-```powershell
-# Create a topic branch before starting port work
-git checkout -b ports/{package-name} master
-
-# ... create port files, test, iterate ...
-
-# Commit when ready
-git add ports/{package-name} versions/
-git commit -m "[{package-name}] Add new port"
-```
-
-This keeps the master branch clean for syncing with upstream (`microsoft/vcpkg`) and
-isolates port work into reviewable branches.
+For detailed instructions, refer to the branch workflow section at the beginning of this skill guide.
 
 ## Next Steps
 
