@@ -119,7 +119,12 @@ vcpkg_apply_patches(
 
 1. **Always verify SHA512 hashes** for security
 2. **Use vcpkg helpers** instead of raw commands when possible
-3. **Support both static and shared builds** unless technically impossible
-4. **Remove debug-only files** from release builds
-5. **Install copyright files** for legal compliance
-6. **Use modern CMake targets** in usage files
+3. **Let vcpkg toolchain handle BUILD_SHARED_LIBS** - don't include it in portfile OPTIONS
+4. **Disable non-essential components by default** - tests, docs, examples, samples with -DBUILD_TESTING=OFF, -DBUILD_DOCS=OFF, etc.
+5. **Remove documentation from installation** - use `file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/share/doc")`
+6. **Remove debug-only files** from release builds
+7. **Install copyright files** for legal compliance
+8. **Use modern CMake targets** in usage files
+9. **Only create usage files when vcpkg heuristics are incorrect** - vcpkg auto-generates usage for find_package() packages
+10. **Support both static and shared builds** unless technically impossible
+

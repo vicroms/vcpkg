@@ -132,13 +132,16 @@ endif()
 
 ## Best Practices for Usage Files
 
-1. **Provide working minimal examples** that users can copy-paste
-2. **Show both REQUIRED and COMPONENTS usage** when applicable  
-3. **Include conditional examples** for optional features
-4. **Use modern target syntax** (`target_link_libraries` with targets)
-5. **Document any special setup** required beyond `find_package()`
-6. **Include pkg-config alternatives** when available
-7. **Show debug/release specific usage** if needed
+1. **Usage files are optional** - vcpkg generates heuristic usage when find_package() is available
+2. **Only create usage files when heuristics are incorrect** - Don't create them by default
+3. **Show working minimal examples** that users can copy-paste
+4. **Show both REQUIRED and COMPONENTS usage** when applicable  
+5. **Include conditional examples** for optional features
+6. **Use modern target syntax** (`target_link_libraries` with targets)
+7. **Document any special setup** required beyond `find_package()`
+8. **Include pkg-config alternatives** when available
+9. **Show debug/release specific usage** if needed
+10. **Never include #include statements in usage files** - That's application code, not integration guidance
 
 ## Common Antipatterns to Avoid
 

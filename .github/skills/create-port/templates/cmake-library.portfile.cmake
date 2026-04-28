@@ -21,9 +21,14 @@ vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         {{CMAKE_OPTIONS}}
-        # Add any CMake options here
-        # -DBUILD_EXAMPLES=OFF
-        # -DBUILD_TESTS=OFF
+        # Disable non-essential components by default
+        -DBUILD_TESTING=OFF
+        -DBUILD_TESTS=OFF
+        -DBUILD_EXAMPLES=OFF
+        -DBUILD_SAMPLES=OFF
+        -DBUILD_DOCS=OFF
+        -DBUILD_DOC=OFF
+        -DBUILD_DOCUMENTATION=OFF
         # ${FEATURE_OPTIONS}
 )
 
@@ -46,11 +51,9 @@ vcpkg_copy_pdbs()
 file(REMOVE_RECURSE 
     "${CURRENT_PACKAGES_DIR}/debug/include"
     "${CURRENT_PACKAGES_DIR}/debug/share"
+    "${CURRENT_PACKAGES_DIR}/share/doc"
 )
-
-# Install usage instructions
-file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" 
-     DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 
 # Install copyright/license file
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/{{LICENSE_FILE}}")
+

@@ -100,8 +100,8 @@ Creates complete port directory with optimized files:
 ports/{package-name}/
 ├── vcpkg.json              # Package manifest with auto-detected dependencies
 ├── portfile.cmake          # Build script using appropriate vcpkg helpers
-├── usage                   # CMake integration guide with unofficial:: targets
-└── *.patch                 # Source patches at port root (if needed)
+├── usage                   # [Optional] CMake integration guide (only if needed)
+└── *.patch                 # [Optional] Source patches at port root (if needed)
 ```
 
 **Auto-Generated Dependencies:**
@@ -177,26 +177,30 @@ vcpkg_cmake_configure(
 )
 vcpkg_cmake_install()
 
-# Standard vcpkg integration
-file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" 
-     DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/package-name)
+vcpkg_fixup_pkgconfig()
+
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
 
-# Cleanup
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
+# Cleanup - remove debug files and documentation
+file(REMOVE_RECURSE 
+    "${CURRENT_PACKAGES_DIR}/debug/include"
+    "${CURRENT_PACKAGES_DIR}/debug/share"
+    "${CURRENT_PACKAGES_DIR}/share/doc"
+)
 ```
 
-**usage** - CMake integration guide for compiled libraries:
-```cmake
+**usage** - Optional CMake integration guide (only needed if vcpkg heuristics are incorrect):
+
+For compiled libraries with CMake config:
+```
 package-name provides CMake targets:
 
   find_package(package-name CONFIG REQUIRED)
-  target_link_libraries(main PRIVATE unofficial::package-name)
+  target_link_libraries(main PRIVATE package-name::package-name)
 ```
 
-**usage** - CMake integration guide for header-only libraries:
+For header-only libraries:
 ```
 package-name is header-only and can be used from CMake via:
 
@@ -204,10 +208,15 @@ package-name is header-only and can be used from CMake via:
   target_include_directories(main PRIVATE ${<PACKAGE_NAME>_INCLUDE_DIRS})
 ```
 
-> **Header-only usage pattern**: Do NOT use `find_package` for ports that only install headers with no CMake config. Use `find_path` to locate the include directory and `target_include_directories` to link it. The portfile must also explicitly install the usage file:
+> **Usage File Notes:**
+> - **Usage files are optional** - vcpkg generates heuristic usage automatically when `find_package()` config files exist
+> - **Only create custom usage files** when the auto-generated usage is incorrect
+> - **Do NOT include #include statements** - usage files show CMake integration, not application code
+> - **For header-only libraries**, explicitly install the usage file in portfile.cmake:
 > ```cmake
 > file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 > ```
+> - **For compiled libraries with CMake config**, omit the usage file and let vcpkg generate it automatically
 
 ## Example Analysis Results
 
@@ -567,10 +576,12 @@ Some libraries are incompatible with vcpkg's packaging model:
 
 ### Build System Integration  
 - **Add required host dependencies** for build system support
-- **Disable non-essential components** by default (tests, tools, documentation)
+- **Do NOT include BUILD_SHARED_LIBS in portfile OPTIONS** — the vcpkg toolchain handles this automatically via `BUILD_SHARED_LIBS` vcpkg feature
+- **Disable non-essential components** by default (tests, tools, documentation) with CMake options like `-DBUILD_TESTING=OFF`, `-DBUILD_DOCS=OFF`, `-DBUILD_EXAMPLES=OFF`
+- **Remove documentation and examples** from installation with `file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/share/doc")`
 - **Handle Windows DLL issues** with conditional `vcpkg_check_linkage(ONLY_STATIC_LIBRARY)` inside `if(VCPKG_TARGET_IS_WINDOWS)` — do not force static globally unless the library cannot build shared on any platform
 - **Set SHA512 to 0 initially** for auto-calculation on first build
-- **Install usage files** with proper CMake integration examples
+- **Only create usage files** when vcpkg's auto-generated usage is incorrect (omit for standard CMake packages)
 - **Use vcpkg features** to allow optional component building when appropriate
 
 ### Quality Assurance
@@ -714,11 +725,12 @@ This applies even for minor changes like adding a usage file or fixing install p
 
 ### Success Indicators
 - ✅ No post-build warnings
-- ✅ Usage file installed to `share/` directory
-- ✅ CMake targets use `unofficial::` namespace
+- ✅ CMake targets properly exported (vcpkg generates usage automatically)
 - ✅ License files in `share/package-name/copyright`
-- ✅ Clean directory structure (no empty debug folders)
+- ✅ Documentation and examples removed from installation
+- ✅ Clean directory structure (no empty debug folders, no /share/doc)
 - ✅ Correct version scheme (`version` for releases, `version-date` for commits)
+- ✅ No absolute paths in pkg-config files (fixed by `vcpkg_fixup_pkgconfig()`)
 
 ## Version-Date Guidance
 
