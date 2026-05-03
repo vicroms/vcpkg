@@ -3,12 +3,6 @@
   "version-date": "2026-05-03",
   "description": "CI evaluation test port B.",
   "supports": "!uwp & !(arm64 & linux)",
-  "dependencies": [
-    {
-      "name": "vcpkg-cmake",
-      "host": true
-    }
-  ],
   "features": {
     "feature-a": {
       "description": "Test scenario A.",

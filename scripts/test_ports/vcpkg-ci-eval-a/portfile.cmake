@@ -1,3 +1,8 @@
+if(NOT "feature-a" IN_LIST FEATURES AND NOT "feature-b" IN_LIST FEATURES AND NOT "feature-c" IN_LIST FEATURES)
+    set(VCPKG_POLICY_EMPTY_PACKAGE enabled)
+    return()
+endif()
+
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
         feature-a WITH_FEATURE_A
@@ -6,7 +11,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
 )
 
 vcpkg_cmake_configure(
-    SOURCE_PATH "${CURRENT_PORT_DIR}/project"
+    SOURCE_PATH "${CMAKE_CURRENT_LIST_DIR}/project"
     OPTIONS ${FEATURE_OPTIONS}
 )
 
@@ -18,13 +23,7 @@ if("feature-b" IN_LIST FEATURES OR "feature-c" IN_LIST FEATURES)
     vcpkg_cmake_install()
 endif()
 
-if("feature-b" IN_LIST FEATURES)
-    vcpkg_install_copyright(FILE_LIST "${CURRENT_PORT_DIR}/copyright")
-elseif("feature-c" IN_LIST FEATURES)
-    file(WRITE "${CURRENT_PACKAGES_DIR}/share/${PORT}/copyright" "MIT\n")
-endif()
-
-if(NOT "feature-a" IN_LIST FEATURES AND NOT "feature-b" IN_LIST FEATURES AND NOT "feature-c" IN_LIST FEATURES)
-    set(VCPKG_POLICY_EMPTY_PACKAGE enabled)
-    file(WRITE "${CURRENT_PACKAGES_DIR}/share/${PORT}/copyright" "MIT\n")
+if(NOT "feature-b" IN_LIST FEATURES)
+    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
+    vcpkg_install_copyright(FILE_LIST "${CMAKE_CURRENT_LIST_DIR}/project/LICENSE")
 endif()
