@@ -19,7 +19,14 @@
     },
     "feature-c": {
       "description": "Test scenario C.",
-      "supports": "windows"
+      "dependencies": [
+        {
+          "name": "vcpkg-ci-eval-b",
+          "features": [
+            "feature-a"
+          ]
+        }
+      ]
     },
     "feature-d": {
       "description": "Test scenario D.",
