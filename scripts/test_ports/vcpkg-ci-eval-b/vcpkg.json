@@ -9,9 +9,6 @@
       "host": true
     }
   ],
-  "default-features": [
-    "feature-a"
-  ],
   "features": {
     "feature-a": {
       "description": "Test scenario A.",
