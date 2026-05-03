@@ -35,7 +35,7 @@ Use it as the exact template when generating reports.
 
 ---
 
-## 🔴 Cross-Platform Regressions (Windows + Linux)
+## 🔴 Cross-Platform Regressions
 
 ### N. `port-name` — Short Root Cause Title
 
@@ -67,6 +67,17 @@ Use it as the exact template when generating reports.
 ### N. `port-name` — Short Root Cause Title
 
 - **Triplet:** x64-linux
+- **Error:** `exact error message`
+- **Root cause:** ...
+- **Suggested fix:** ...
+
+---
+
+## 🔴 MacOS-Only Regressions
+
+### N. `port-name` — Short Root Cause Title
+
+- **Triplet:** arm64-osx
 - **Error:** `exact error message`
 - **Root cause:** ...
 - **Suggested fix:** ...
