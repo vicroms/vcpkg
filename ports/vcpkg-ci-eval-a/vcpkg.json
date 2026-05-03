@@ -1,6 +1,6 @@
 {
   "name": "vcpkg-ci-eval-a",
-  "version-date": "2026-05-03",
+  "version-date": "2026-05-04",
   "description": "CI evaluation test port A.",
   "supports": "!uwp",
   "dependencies": [
