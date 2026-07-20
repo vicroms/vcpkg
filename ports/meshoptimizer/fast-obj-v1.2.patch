@@ -1,0 +1,83 @@
+diff --git a/gltf/fast_obj.h b/gltf/fast_obj.h
+--- a/gltf/fast_obj.h
++++ b/gltf/fast_obj.h
+@@ -137,6 +137,7 @@
+     unsigned int                face_count;
+     unsigned int*               face_vertices;
+     unsigned int*               face_materials;
++    unsigned char*              face_lines;
+ 
+     /* Index data: one element for each face vertex */
+     unsigned int                index_count;
+@@ -734,7 +735,7 @@
+ 
+ 
+ static
+-const char* parse_face(fastObjData* data, const char* ptr)
++const char* parse_face(fastObjData* data, const char* ptr, unsigned char line)
+ {
+     unsigned int count;
+     fastObjIndex vn;
+@@ -795,6 +796,16 @@
+ 
+     array_push(data->mesh->face_vertices, count);
+     array_push(data->mesh->face_materials, data->material);
++
++    if (line || data->mesh->face_lines)
++    {
++        /* when line info exists, ensure it uses aligned indexing with other face data */
++        size_t skipped = array_size(data->mesh->face_vertices) - array_size(data->mesh->face_lines);
++        while (--skipped > 0)
++            array_push(data->mesh->face_lines, 0);
++
++        array_push(data->mesh->face_lines, line);
++    }
+ 
+     data->group.face_count++;
+     data->object.face_count++;
+@@ -1295,7 +1306,22 @@
+             {
+             case ' ':
+             case '\t':
+-                p = parse_face(data, p);
++                p = parse_face(data, p, 0);
++                break;
++
++            default:
++                p--; /* roll p++ back in case *p was a newline */
++            }
++            break;
++
++        case 'l':
++            p++;
++
++            switch (*p++)
++            {
++            case ' ':
++            case '\t':
++                p = parse_face(data, p, 1);
+                 break;
+ 
+             default:
+@@ -1398,6 +1424,7 @@
+     array_clean(m->colors);
+     array_clean(m->face_vertices);
+     array_clean(m->face_materials);
++    array_clean(m->face_lines);
+     array_clean(m->indices);
+     array_clean(m->objects);
+     array_clean(m->groups);
+@@ -1454,6 +1481,7 @@
+     m->colors         = 0;
+     m->face_vertices  = 0;
+     m->face_materials = 0;
++    m->face_lines     = 0;
+     m->indices        = 0;
+     m->materials      = 0;
+     m->textures       = 0;
+@@ -1580,4 +1608,4 @@
+     return m;
+ }
+ 
+-#endif
++#endif
