@@ -18,6 +18,7 @@
     "gltfpack": {
       "description": "Build gltfpack tool",
       "supports": "!uwp",
+      "license": null,
       "dependencies": [
         "basisu",
         "cgltf",
