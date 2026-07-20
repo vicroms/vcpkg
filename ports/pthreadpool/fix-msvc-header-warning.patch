@@ -1,0 +1,22 @@
+diff --git a/include/pthreadpool.h b/include/pthreadpool.h
+index 8c5438d..dfca15a 100644
+--- a/include/pthreadpool.h
++++ b/include/pthreadpool.h
+@@ -151,11 +151,15 @@
+ // Disable function sanitization here. The thread pool calls these functions
+ // via function pointers with void* contexts, which triggers false positives in
+ // the function sanitizer when casting and calling the actual context type.
+-#if defined(__clang__) && __has_attribute(no_sanitize)
++#if defined(__clang__)
++#if __has_attribute(no_sanitize)
+ #define PTHREADPOOL_NO_SANITIZE_FUNCTION \
+   __attribute__((no_sanitize("function")))
+ #else
+ #define PTHREADPOOL_NO_SANITIZE_FUNCTION
+ #endif
++#else
++#define PTHREADPOOL_NO_SANITIZE_FUNCTION
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {

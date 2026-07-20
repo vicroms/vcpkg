@@ -9,6 +9,7 @@ vcpkg_from_github(
     SHA512 0ff9830471bc363359f9d3ab1e2f1acdb06a8ef3736b00668c0139e12e727a168f91033a59d8c8b90a0a71d7832eef73ba1c459222311b7e5977e214aba00964
     PATCHES
         fix-cmakelists.patch
+        fix-msvc-header-warning.patch
 )
 
 vcpkg_cmake_configure(
