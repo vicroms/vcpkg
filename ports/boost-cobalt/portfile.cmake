@@ -12,6 +12,7 @@ vcpkg_from_github(
 )
 
 set(FEATURE_OPTIONS "")
+list(APPEND FEATURE_OPTIONS -DCMAKE_DISABLE_FIND_PACKAGE_OpenSSL=ON)
 boost_configure_and_install(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS ${FEATURE_OPTIONS}

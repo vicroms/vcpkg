@@ -1,6 +1,14 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -108,6 +108,6 @@ if (NOT BOOST_COBALT_IS_ROOT)
+        )
+ 
+-    target_link_libraries(boost_cobalt_io PUBLIC boost_cobalt )
++    target_link_libraries(boost_cobalt_io PUBLIC Boost::cobalt )
+     target_compile_definitions(boost_cobalt_io PRIVATE BOOST_COBALT_IO_SOURCE=1)
+     add_library(Boost::cobalt::io ALIAS boost_cobalt_io)
+ 
 @@ -124,6 +124,14 @@ if (NOT BOOST_COBALT_IS_ROOT)
          add_library(Boost::cobalt::io::ssl ALIAS boost_cobalt_io_ssl)
      endif()
