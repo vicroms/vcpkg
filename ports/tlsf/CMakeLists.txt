@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(tlsf LANGUAGES C)
+
+include(GNUInstallDirs)
+
+add_library(tlsf tlsf.c)
+target_include_directories(tlsf PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+install(TARGETS tlsf
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(FILES tlsf.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

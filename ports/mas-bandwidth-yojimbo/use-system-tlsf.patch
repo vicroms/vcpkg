@@ -1,0 +1,88 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,6 +22,9 @@
+ 
+ option(YOJIMBO_INSTALL
+     "Generate the install target (yojimbo headers and library)" ON)
++
++option(YOJIMBO_SYSTEM_TLSF
++    "Build against system-installed tlsf instead of the vendored copy" OFF)
+ 
+ option(YOJIMBO_BUILD_TESTS
+     "Build the test, client/server example and soak programs" ON)
+@@ -54,6 +57,14 @@
+     add_compile_options(/W4 $<$<COMPILE_LANGUAGE:CXX>:/GR->)
+ else()
+     add_compile_options(-Wall -Wextra $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
++endif()
++
++if(YOJIMBO_SYSTEM_TLSF)
++    find_path(YOJIMBO_TLSF_INCLUDE_DIR tlsf.h REQUIRED)
++    find_library(YOJIMBO_TLSF_LIBRARY tlsf REQUIRED)
++    set(YOJIMBO_TLSF_INCLUDE_DIRS "${YOJIMBO_TLSF_INCLUDE_DIR}")
++else()
++    set(YOJIMBO_TLSF_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/tlsf")
+ endif()
+ 
+ if(YOJIMBO_SYSTEM_DEPS)
+@@ -80,7 +91,7 @@
+     set(YOJIMBO_INCLUDE_DIRS
+         "${CMAKE_SOURCE_DIR}"
+         "${CMAKE_SOURCE_DIR}/include"
+-        "${CMAKE_SOURCE_DIR}/tlsf"
++        "${YOJIMBO_TLSF_INCLUDE_DIRS}"
+         "${YOJIMBO_SERIALIZE_INCLUDE_DIR}"
+         "${YOJIMBO_NETCODE_INCLUDE_DIR}"
+         "${YOJIMBO_RELIABLE_INCLUDE_DIR}"
+@@ -92,7 +103,7 @@
+         "${CMAKE_SOURCE_DIR}"
+         "${CMAKE_SOURCE_DIR}/include"
+         "${CMAKE_SOURCE_DIR}/sodium"
+-        "${CMAKE_SOURCE_DIR}/tlsf"
++        "${YOJIMBO_TLSF_INCLUDE_DIRS}"
+         "${CMAKE_SOURCE_DIR}/netcode"
+         "${CMAKE_SOURCE_DIR}/reliable"
+         "${CMAKE_SOURCE_DIR}/serialize"
+@@ -134,12 +145,13 @@
+ 
+ endif()
+ 
+-# Standalone tlsf archive for regular development (e.g. anyone building straight from this
+-# tree). Not linked into yojimbo and not installed — see below, yojimbo compiles tlsf.c
+-# directly into its own archive so that only libyojimbo.a ships to package consumers.
+-add_library(tlsf STATIC tlsf/tlsf.c)
+-target_include_directories(tlsf PRIVATE "${CMAKE_SOURCE_DIR}/tlsf")
+-set_target_properties(tlsf PROPERTIES POSITION_INDEPENDENT_CODE ON)
++# Standalone tlsf archive for regular development. Package managers can instead link a
++# system-installed tlsf library.
++if(NOT YOJIMBO_SYSTEM_TLSF)
++    add_library(tlsf STATIC tlsf/tlsf.c)
++    target_include_directories(tlsf PRIVATE "${CMAKE_SOURCE_DIR}/tlsf")
++    set_target_properties(tlsf PROPERTIES POSITION_INDEPENDENT_CODE ON)
++endif()
+ 
+ # --- yojimbo library ----------------------------------------------------------------------
+ 
+@@ -152,7 +164,11 @@
+ # private implementation detail of yojimbo's per-client allocators, not a public dependency.
+ 
+ file(GLOB YOJIMBO_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/source/*.cpp")
+-add_library(yojimbo ${YOJIMBO_SOURCES} "${CMAKE_SOURCE_DIR}/tlsf/tlsf.c")
++if(YOJIMBO_SYSTEM_TLSF)
++    add_library(yojimbo ${YOJIMBO_SOURCES})
++else()
++    add_library(yojimbo ${YOJIMBO_SOURCES} "${CMAKE_SOURCE_DIR}/tlsf/tlsf.c")
++endif()
+ target_include_directories(yojimbo PUBLIC ${YOJIMBO_INCLUDE_DIRS})
+ set_target_properties(yojimbo PROPERTIES
+     VERSION ${PROJECT_VERSION}
+@@ -172,6 +188,9 @@
+ endif()
+ if(NOT WIN32)
+     target_link_libraries(yojimbo PUBLIC m)   # ceil/floor in the reliable-ordered channel etc.
++endif()
++if(YOJIMBO_SYSTEM_TLSF)
++    target_link_libraries(yojimbo PUBLIC ${YOJIMBO_TLSF_LIBRARY})
+ endif()
+ 
+ # --- install ------------------------------------------------------------------------------
