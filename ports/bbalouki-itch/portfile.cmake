@@ -49,6 +49,10 @@ vcpkg_cmake_config_fixup(
     CONFIG_PATH "lib/cmake/itch"
    
 )
+
+file(RENAME "${CURRENT_PACKAGES_DIR}/share/itch/ItchConfig.cmake" "${CURRENT_PACKAGES_DIR}/share/itch/itchConfig.cmake")
+file(RENAME "${CURRENT_PACKAGES_DIR}/share/itch/ItchConfigVersion.cmake" "${CURRENT_PACKAGES_DIR}/share/itch/itchConfigVersion.cmake")
+
 vcpkg_fixup_pkgconfig()
 vcpkg_copy_pdbs()
 
