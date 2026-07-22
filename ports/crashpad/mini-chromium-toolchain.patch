@@ -27,10 +27,19 @@ index b621dc1..95c07f6 100644
    # Extra flags passed to the C compiler.
    # Space-separated string of flags.
    # "cflags" are passed to all invocations of the C, C++, Objective-C, and
+@@ -263,7 +268,7 @@ config("default") {
+        "/wd4996",  # 'X' was declared deprecated.
+      ]
+ 
+-    cflags_cc = [ "/std:c++23preview" ]
++    cflags_cc = [ "/std:c++latest" ]
+ 
+      if (mini_chromium_is_clang) {
+        if (current_cpu == "x86") {
 @@ -297,9 +302,13 @@ config("default") {
-     } else if (current_cpu == "x64") {
-       common_flags += [ "-m64" ]
-     } else if (current_cpu == "arm64") {
+      } else if (current_cpu == "x64") {
+        common_flags += [ "-m64" ]
+      } else if (current_cpu == "arm64") {
 -      common_flags += [ "--target=aarch64-linux-gnu" ]
 +      if (mini_chromium_is_clang) {
 +        common_flags += [ "--target=aarch64-linux-gnu" ]
@@ -98,3 +107,19 @@ index b621dc1..95c07f6 100644
    if (defined(extra_cflags) && extra_cflags != "") {
      extra_cflags = " " + extra_cflags
    } else {
+diff --git a/build/win_helper.py b/build/win_helper.py
+index 6569bd3..4530791 100644
+--- a/build/win_helper.py
++++ b/build/win_helper.py
+@@ -190,6 +190,11 @@ class WinTool(object):
+ 
+          def env():
+              from_env = os.environ.get('VSINSTALLDIR')
++            if from_env and os.path.exists(
++                    os.path.join(from_env, 'VC', 'Auxiliary', 'Build',
++                                 'vcvarsall.bat')):
++                return from_env, os.path.join('VC', 'Auxiliary', 'Build',
++                                             'vcvarsall.bat')
+              for setenv_path in setenv_paths:
+                  if from_env and os.path.exists(
+                          os.path.join(from_env, setenv_path)):

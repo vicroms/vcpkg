@@ -13,7 +13,7 @@ x_vcpkg_get_python_packages(OUT_PYTHON_VAR PYTHON3
     PYTHON_VERSION "3"
     PACKAGES setuptools
 )
-vcpkg_replace_string("${SOURCE_PATH}/.gn" "script_executable = \"python3\"" "script_executable = \"${PYTHON3}\"")
+vcpkg_replace_string("${SOURCE_PATH}/.gn" "script_executable = \"python3\"" "script_executable = \"${PYTHON3}\"" IGNORE_UNCHANGED)
 
 # mini_chromium contains the toolchains and build configuration
 if(NOT EXISTS "${SOURCE_PATH}/third_party/mini_chromium/mini_chromium/BUILD.gn")
