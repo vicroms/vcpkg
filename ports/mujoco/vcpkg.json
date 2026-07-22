@@ -3,7 +3,7 @@
   "version": "3.10.0",
   "description": "Multi-Joint dynamics with Contact.",
   "homepage": "https://mujoco.org",
-  "license": "Apache-2.0",
+  "license": "Apache-2.0 AND CC0-1.0",
   "supports": "!(windows & static)",
   "dependencies": [
     {
