@@ -5,5 +5,7 @@ cminpack provides CMake targets:
 
     # alternative for single precision
     target_link_libraries(main PRIVATE cminpack::cminpacks)
-    # alternative for long double precision
-    target_link_libraries(main PRIVATE cminpack::cminpackld)
+    # alternative for long double precision when available
+    if(TARGET cminpack::cminpackld)
+        target_link_libraries(main PRIVATE cminpack::cminpackld)
+    endif()

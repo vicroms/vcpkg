@@ -1,0 +1,13 @@
+diff --git a/include/cminpackcpp.hpp b/include/cminpackcpp.hpp
+index f9adeaa..9a03969 100644
+--- a/include/cminpackcpp.hpp
++++ b/include/cminpackcpp.hpp
+@@ -32,7 +32,7 @@
+ #ifndef __CMINPACKCPP_HPP__
+ #define __CMINPACKCPP_HPP__
+ 
+-#include <cminpack.h>
++#include "cminpack.h"
+ 
+ #if !defined(__cplusplus)
+ #error "cminpackcpp.hpp is a C++ header; include cminpack.h from C code."

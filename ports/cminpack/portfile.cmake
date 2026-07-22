@@ -3,6 +3,8 @@ vcpkg_from_github(
     REPO devernay/cminpack
     REF "v${VERSION}"
     SHA512 900416128b093e4563d1d9f2827b79b61b640a24c9adb21473822008b3a4e377b9a14813697015af0b679d18634d177dfbf529dcaf5e1da40367f978dfda9537
+    PATCHES
+        fix-cminpackcpp-include.patch
 )
 
 vcpkg_cmake_configure(
