@@ -147,7 +147,7 @@ if("tools" IN_LIST FEATURES)
     if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
         vcpkg_copy_tools(TOOL_NAMES dot_builtins AUTO_CLEAN)
         file(GLOB plugin_config "${CURRENT_PACKAGES_DIR}/lib/graphviz/config*" "${CURRENT_PACKAGES_DIR}/bin/config*")
-        if(NOT plugin_config)
+        if(NOT plugin_config AND NOT VCPKG_TARGET_IS_WINDOWS)
             message(WARNING
                 "In order to create the plugin configuration file, "
                 "you must run `dot -c` on the target system."
@@ -156,6 +156,9 @@ if("tools" IN_LIST FEATURES)
         if(VCPKG_TARGET_IS_WINDOWS)
             file(GLOB plugins "${CURRENT_PACKAGES_DIR}/bin/gvplugin_*")
             file(COPY ${plugins} ${plugin_config} DESTINATION "${CURRENT_PACKAGES_DIR}/tools/${PORT}")
+            if(NOT plugin_config)
+                file(COPY "${CMAKE_CURRENT_LIST_DIR}/config8" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/${PORT}")
+            endif()
         else()
             file(COPY "${CURRENT_PACKAGES_DIR}/lib/graphviz" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/${PORT}")
         endif()
