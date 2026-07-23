@@ -1,4 +1,3 @@
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO bbalouki/itchcpp
@@ -25,10 +24,16 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
+set(ITCH_NESTED_INCLUDE_DIR "${CURRENT_PACKAGES_DIR}/include/itch/include/itch")
+if(EXISTS "${ITCH_NESTED_INCLUDE_DIR}")
+    file(GLOB ITCH_INSTALLED_HEADERS "${ITCH_NESTED_INCLUDE_DIR}/*")
+    file(COPY ${ITCH_INSTALLED_HEADERS} DESTINATION "${CURRENT_PACKAGES_DIR}/include/itch")
+    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/itch/include")
+endif()
+
 vcpkg_cmake_config_fixup(
     PACKAGE_NAME "itch"
     CONFIG_PATH "lib/cmake/itch"
-   
 )
 vcpkg_fixup_pkgconfig()
 vcpkg_copy_pdbs()
