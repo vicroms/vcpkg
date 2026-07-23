@@ -6124,6 +6124,10 @@
       "baseline": "1.2.0",
       "port-version": 0
     },
+    "lidaixingchen-randx": {
+      "baseline": "1.4.0",
+      "port-version": 0
+    },
     "lief": {
       "baseline": "0.17.6",
       "port-version": 0
@@ -8654,10 +8658,6 @@
     },
     "randomstr": {
       "baseline": "2022-02-03",
-      "port-version": 0
-    },
-    "randx": {
-      "baseline": "1.4.0",
       "port-version": 0
     },
     "rang": {
