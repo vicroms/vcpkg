@@ -62,7 +62,14 @@ vcpkg_cmake_configure(
 )
 
 vcpkg_cmake_install()
-vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/TGUI)
+
+set(tgui_config_path lib/cmake/TGUI)
+if(VCPKG_TARGET_IS_ANDROID)
+    vcpkg_cmake_get_vars(cmake_vars_file)
+    include("${cmake_vars_file}")
+    set(tgui_config_path "lib/${VCPKG_DETECTED_CMAKE_ANDROID_ARCH_ABI}/cmake/TGUI")
+endif()
+vcpkg_cmake_config_fixup(CONFIG_PATH "${tgui_config_path}")
 vcpkg_copy_pdbs()
 
 if("tool" IN_LIST FEATURES)
