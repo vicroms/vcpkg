@@ -51,6 +51,7 @@ vcpkg_from_github(
         fix-eigen3.patch
         avoid-stdext.diff
         fix-fmt-header.patch
+        python313-segfault.patch
 )
 
 if("python" IN_LIST FEATURES)
