@@ -1,6 +1,7 @@
 {
   "name": "python3",
   "version": "3.13.15",
+  "port-version": 1,
   "description": "The Python programming language",
   "homepage": "https://github.com/python/cpython",
   "license": "Python-2.0",
@@ -76,6 +77,10 @@
         },
         {
           "name": "liblzma",
+          "default-features": false
+        },
+        {
+          "name": "mpdecimal",
           "default-features": false
         },
         {

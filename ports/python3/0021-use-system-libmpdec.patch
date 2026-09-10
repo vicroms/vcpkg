@@ -1,0 +1,46 @@
+diff --git a/PCbuild/_decimal.vcxproj b/PCbuild/_decimal.vcxproj
+index d33c350..2907c1e 100644
+--- a/PCbuild/_decimal.vcxproj
++++ b/PCbuild/_decimal.vcxproj
+@@ -93,15 +93,20 @@
+   </PropertyGroup>
+   <ItemDefinitionGroup>
+     <ClCompile>
+-      <PreprocessorDefinitions>BUILD_LIBMPDEC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>..\Modules\_decimal;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++    </ClCompile>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="false">
++    <ClCompile>
++      <PreprocessorDefinitions>BUILD_LIBMPDEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <PreprocessorDefinitions Condition="'$(Platform)' == 'Win32'">CONFIG_32;PPRO;MASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <PreprocessorDefinitions Condition="'$(Platform)'=='ARM'">CONFIG_32;ANSI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <PreprocessorDefinitions Condition="'$(Platform)'=='ARM64'">CONFIG_64;ANSI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <PreprocessorDefinitions Condition="'$(Platform)' == 'x64'">CONFIG_64;MASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>..\Modules\_decimal;..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+     </ClCompile>
+   </ItemDefinitionGroup>
+-  <ItemGroup>
++  <ItemGroup Condition="false">
+     <ClInclude Include="$(mpdecimalDir)\libmpdec\basearith.h" />
+     <ClInclude Include="$(mpdecimalDir)\libmpdec\bits.h" />
+     <ClInclude Include="$(mpdecimalDir)\libmpdec\constants.h" />
+@@ -125,6 +130,8 @@
+   </ItemGroup>
+   <ItemGroup>
+     <ClCompile Include="..\Modules\_decimal\_decimal.c" />
++  </ItemGroup>
++  <ItemGroup Condition="false">
+     <ClCompile Include="$(mpdecimalDir)\libmpdec\basearith.c" />
+     <ClCompile Include="$(mpdecimalDir)\libmpdec\constants.c" />
+     <ClCompile Include="$(mpdecimalDir)\libmpdec\context.c" />
+@@ -140,7 +147,7 @@
+     <ClCompile Include="$(mpdecimalDir)\libmpdec\sixstep.c" />
+     <ClCompile Include="$(mpdecimalDir)\libmpdec\transpose.c" />
+   </ItemGroup>
+-  <ItemGroup>
++  <ItemGroup Condition="false">
+     <CustomBuild Include="$(mpdecimalDir)\libmpdec\vcdiv64.asm">
+       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+       <ExcludedFromBuild Condition="'$(Platform)'=='ARM'">true</ExcludedFromBuild>
