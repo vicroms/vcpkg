@@ -447,7 +447,11 @@ if("nvcuvid" IN_LIST FEATURES)
 
   set(NVCODEC_SDK_DIR "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-nvcodec-sdk")
   file(REMOVE_RECURSE "${NVCODEC_SDK_DIR}")
-  file(MAKE_DIRECTORY "${NVCODEC_SDK_DIR}/include" "${NVCODEC_SDK_DIR}/lib")
+  file(MAKE_DIRECTORY
+    "${NVCODEC_SDK_DIR}/include"
+    "${CURRENT_PACKAGES_DIR}/lib"
+    "${CURRENT_PACKAGES_DIR}/debug/lib"
+  )
   file(COPY "${CURRENT_INSTALLED_DIR}/include/ffnvcodec" DESTINATION "${NVCODEC_SDK_DIR}/include")
   file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/nvcuvid-shim.h"
        DESTINATION "${NVCODEC_SDK_DIR}/include" RENAME "nvcuvid.h")
@@ -456,15 +460,17 @@ if("nvcuvid" IN_LIST FEATURES)
     COMMAND "${VCPKG_DETECTED_CMAKE_AR}"
             "/def:${CMAKE_CURRENT_LIST_DIR}/nvcuvid.def"
             "/machine:${VCPKG_TARGET_ARCHITECTURE}"
-            "/out:${NVCODEC_SDK_DIR}/lib/nvcuvid.lib"
+            "/out:${CURRENT_PACKAGES_DIR}/lib/nvcuvid.lib"
     WORKING_DIRECTORY "${NVCODEC_SDK_DIR}"
     LOGNAME "nvcuvid-implib-${TARGET_TRIPLET}"
   )
+  file(COPY "${CURRENT_PACKAGES_DIR}/lib/nvcuvid.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/debug/lib")
 
   list(APPEND ADDITIONAL_BUILD_FLAGS
     "-DNVIDIA_VIDEO_CODEC_SDK_DIR=${NVCODEC_SDK_DIR}"
-    "-DCUDA_nvcuvid_LIBRARY=${NVCODEC_SDK_DIR}/lib/nvcuvid.lib"
   )
+  list(APPEND NVCUVID_OPTIONS_RELEASE "-DCUDA_nvcuvid_LIBRARY=${CURRENT_PACKAGES_DIR}/lib/nvcuvid.lib")
+  list(APPEND NVCUVID_OPTIONS_DEBUG "-DCUDA_nvcuvid_LIBRARY=${CURRENT_PACKAGES_DIR}/debug/lib/nvcuvid.lib")
 endif()
 
 vcpkg_cmake_configure(
@@ -561,8 +567,10 @@ vcpkg_cmake_configure(
         ###### Additional build flags
         ${ADDITIONAL_BUILD_FLAGS}
     OPTIONS_RELEASE
+        ${NVCUVID_OPTIONS_RELEASE}
         ${PYTHON_EXTRA_DEFINES_RELEASE}
     OPTIONS_DEBUG
+        ${NVCUVID_OPTIONS_DEBUG}
         ${PYTHON_EXTRA_DEFINES_DEBUG}
     MAYBE_UNUSED_VARIABLES
         OPENCV_FORCE_EIGEN_FIND_PACKAGE_CONFIG
