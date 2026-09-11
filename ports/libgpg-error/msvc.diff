@@ -1,8 +1,17 @@
 diff --git a/configure.ac b/configure.ac
-index 1f2fe0d..1796fa1 100644
+index 3e26b48..f11cca1 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -780,6 +780,11 @@ AC_CONFIG_FILES([src/gpg-error-config-old:src/gpg-error-config.in], [chmod +x sr
+@@ -500,7 +500,7 @@ AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
+ # Windows has always thread support; thus we don't bother to test for
+ # it as it may lead to false results when cross building.
+ if test "$have_w32_system" = yes; then
+-  GPG_ERROR_CONFIG_LIBS_PRIVATE=-lws2_32
++  GPG_ERROR_CONFIG_LIBS_PRIVATE="-lws2_32 -luser32 -ladvapi32"
+   AC_DEFINE([USE_WINDOWS_THREADS], [1])
+   LIBTHREAD=
+   LTLIBTHREAD=
+@@ -785,6 +785,11 @@ AC_CONFIG_FILES([src/gpg-error-config-old:src/gpg-error-config.in], [chmod +x sr
  AC_CONFIG_FILES([src/gpgrt-config], [chmod +x src/gpgrt-config])
  AC_CONFIG_FILES([src/gpg-error-config-test.sh], [chmod +x src/gpg-error-config-test.sh])
  
@@ -14,6 +23,21 @@ index 1f2fe0d..1796fa1 100644
  AC_OUTPUT
  
  tmp=
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 6cedcb3..3788e18 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -256,7 +256,10 @@ code-to-errno.h: Makefile mkerrnos.awk errnos.in
+ # It is correct to use $(CPP).  We want the host's idea of the error codes.
+ mkerrcodes.h: Makefile mkerrcodes.awk
+ 	$(AWK) -f $(srcdir)/mkerrcodes1.awk $(srcdir)/errnos.in >_$@
+-	$(CPP) $(CPPFLAGS) -P _$@ | grep GPG_ERR_ | \
++	case "$(CPP)" in \
++	  *cl.exe*) $(CPP) $(CPPFLAGS) -EP _$@ ;; \
++	  *)        $(CPP) $(CPPFLAGS) -P _$@ ;; \
++	esac | grep GPG_ERR_ | \
+                $(AWK) -f $(srcdir)/mkerrcodes.awk >$@
+ 	-rm _$@
  
 diff --git a/src/argparse.c b/src/argparse.c
 index 0cf0083..549fd29 100644
@@ -44,7 +68,7 @@ index 058ca71..0811039 100644
  #include <errno.h>
  #include <stddef.h>
 diff --git a/src/estream.c b/src/estream.c
-index d2cdc12..1a92db0 100644
+index d2cdc12..5af619f 100644
 --- a/src/estream.c
 +++ b/src/estream.c
 @@ -68,12 +68,18 @@
@@ -182,22 +206,6 @@ index 09727d5..f7923b6 100644
  
  #define PGM "mkheader"
  
-diff --git a/src/Makefile.am b/src/Makefile.am
-index a9ca4d5..171c6ec 100644
---- a/src/Makefile.am
-+++ b/src/Makefile.am
-@@ -256,7 +256,10 @@ code-to-errno.h: Makefile mkerrnos.awk errnos.in
- # It is correct to use $(CPP).  We want the host's idea of the error codes.
- mkerrcodes.h: Makefile mkerrcodes.awk
- 	$(AWK) -f $(srcdir)/mkerrcodes1.awk $(srcdir)/errnos.in >_$@
--	$(CPP) $(CPPFLAGS) -P _$@ | grep GPG_ERR_ | \
-+	case "$(CPP)" in \
-+	  *cl.exe*) $(CPP) $(CPPFLAGS) -EP _$@ ;; \
-+	  *)        $(CPP) $(CPPFLAGS) -P _$@ ;; \
-+	esac | grep GPG_ERR_ | \
-                $(AWK) -f $(srcdir)/mkerrcodes.awk >$@
- 	-rm _$@
- 
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
 index f21991a..2d5fc57 100644
 --- a/src/spawn-w32.c
@@ -236,7 +244,7 @@ index b6d6a55..9cbc670 100644
  #ifdef HAVE_W32_SYSTEM
  # include <windows.h>
 diff --git a/src/versioninfo.rc.in b/src/versioninfo.rc.in
-index e00b638..c83e437 100644
+index e00b638..0ba3f2c 100644
 --- a/src/versioninfo.rc.in
 +++ b/src/versioninfo.rc.in
 @@ -13,9 +13,11 @@
@@ -254,6 +262,15 @@ index e00b638..c83e437 100644
  
  
  VS_VERSION_INFO VERSIONINFO
+@@ -40,7 +42,7 @@ BEGIN
+             VALUE "FileDescription", "libgpg-error - Common error codes\0"
+             VALUE "FileVersion", "@LIBGPG_ERROR_LT_CURRENT@.@LIBGPG_ERROR_LT_AGE@.@LIBGPG_ERROR_LT_REVISION@.@BUILD_REVISION@\0"
+             VALUE "InternalName", "libgpg-error\0"
+-            VALUE "LegalCopyright", "Copyright © 2026 g10 Code GmbH\0"
++            VALUE "LegalCopyright", "Copyright ï¿½ 2026 g10 Code GmbH\0"
+             VALUE "LegalTrademarks", "\0"
+             VALUE "OriginalFilename", "libgpg-error.dll\0"
+             VALUE "PrivateBuild", "\0"
 diff --git a/src/w32-estream.c b/src/w32-estream.c
 index 08b9b16..d70ba81 100644
 --- a/src/w32-estream.c
