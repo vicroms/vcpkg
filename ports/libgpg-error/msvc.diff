@@ -182,6 +182,22 @@ index 09727d5..f7923b6 100644
  
  #define PGM "mkheader"
  
+diff --git a/src/Makefile.am b/src/Makefile.am
+index a9ca4d5..171c6ec 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -256,7 +256,10 @@ code-to-errno.h: Makefile mkerrnos.awk errnos.in
+ # It is correct to use $(CPP).  We want the host's idea of the error codes.
+ mkerrcodes.h: Makefile mkerrcodes.awk
+ 	$(AWK) -f $(srcdir)/mkerrcodes1.awk $(srcdir)/errnos.in >_$@
+-	$(CPP) $(CPPFLAGS) -P _$@ | grep GPG_ERR_ | \
++	case "$(CPP)" in \
++	  *cl.exe*) $(CPP) $(CPPFLAGS) -EP _$@ ;; \
++	  *)        $(CPP) $(CPPFLAGS) -P _$@ ;; \
++	esac | grep GPG_ERR_ | \
+                $(AWK) -f $(srcdir)/mkerrcodes.awk >$@
+ 	-rm _$@
+ 
 diff --git a/src/spawn-w32.c b/src/spawn-w32.c
 index f21991a..2d5fc57 100644
 --- a/src/spawn-w32.c
