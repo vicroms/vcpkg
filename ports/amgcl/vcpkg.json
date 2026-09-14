@@ -5,6 +5,7 @@
   "homepage": "https://amgcl.readthedocs.io",
   "license": "MIT",
   "dependencies": [
+    "boost-property-tree",
     {
       "name": "vcpkg-cmake",
       "host": true
