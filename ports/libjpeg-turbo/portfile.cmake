@@ -19,6 +19,7 @@ vcpkg_from_github(
         # https://github.com/libjpeg-turbo/libjpeg-turbo/commit/95156233739078e7d4de0aeeacc4b0595630f393
         # https://github.com/libjpeg-turbo/libjpeg-turbo/commit/240e20d87c0b7d17614687ddc55ccd1fc631daf9
         # https://github.com/libjpeg-turbo/libjpeg-turbo/commit/204e5c2bed4401309c26dc6ed95001e2fc50f833
+        # It also adds vcpkg-specific static pkg-config dependency metadata.
         system-dependency-fixes-pr-901.patch
 )
 
