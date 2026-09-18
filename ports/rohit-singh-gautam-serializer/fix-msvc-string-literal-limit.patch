@@ -1,0 +1,78 @@
+diff --git a/src/c_runtime.inc b/src/c_runtime.inc
+index 06cc1d0..bd245be 100644
+--- a/src/c_runtime.inc
++++ b/src/c_runtime.inc
+@@ -157,7 +157,7 @@ static inline void srl_write_array_end(srl_writer* out) { if (out->protocol == s
+ static inline bool srl_require(srl_reader* in, size_t count) { if (in->status != srl_ok) { return false; } if (count > in->size-in->offset) { in->status = srl_truncated; return false; } return true; }
+ /* Recognize exactly JSON whitespace. */
+ static inline bool srl_whitespace_byte(uint8_t b) { return b == 32 || b == 9 || b == 10 || b == 13; }
+-/* Skip JSON whitespace without reading beyond the buffer. */
++/* Skip JSON whitespace without reading beyond the buffer. */)serializer" R"serializer(
+ static inline void srl_whitespace(srl_reader* in) { while (in->offset < in->size && srl_whitespace_byte(in->data[in->offset])) { ++in->offset; } }
+ /* Require a delimiter without allowing trailing commas. */
+ static inline void srl_expect(srl_reader* in, uint8_t value) { srl_whitespace(in); if (srl_require(in, 1) && in->data[in->offset++] != value) { in->status = srl_invalid; } }
+diff --git a/src/csharp_runtime.inc b/src/csharp_runtime.inc
+index 73a5b6c..2b63f5c 100644
+--- a/src/csharp_runtime.inc
++++ b/src/csharp_runtime.inc
+@@ -124,7 +124,7 @@ R"serializer(
+     private static readonly System.Text.RegularExpressions.Regex IntegerPattern = new System.Text.RegularExpressions.Regex(@"\A-?(0|[1-9][0-9]*)\z", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+     private static readonly System.Text.RegularExpressions.Regex NumberPattern = new System.Text.RegularExpressions.Regex(@"\A-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?\z", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+     internal readonly Protocol protocol;
+-    private readonly System.ReadOnlyMemory<byte> data;
++    private readonly System.ReadOnlyMemory<byte> data;)serializer" R"serializer(
+     private readonly Limits limits;
+     private int offset, depth, elements;
+     // Retain the input only for this synchronous decode call.
+diff --git a/src/java_runtime.inc b/src/java_runtime.inc
+index 4af49c3..42530af 100644
+--- a/src/java_runtime.inc
++++ b/src/java_runtime.inc
+@@ -229,7 +229,7 @@ private static final class Reader {
+   boolean json() { return protocol == Protocol.JSON; }
+ 
+   /** Require a bounded slice without overflow. */
+-  void require(int length) {
++  void require(int length) {)java" R"java(
+     if (length < 0 || length > bytes.length - offset) { throw error("Truncated input"); }
+   }
+ 
+diff --git a/src/kotlin_runtime.inc b/src/kotlin_runtime.inc
+index 883bd26..5a7de7e 100644
+--- a/src/kotlin_runtime.inc
++++ b/src/kotlin_runtime.inc
+@@ -130,7 +130,7 @@ internal class SrlReader(val data: ByteArray, val protocol: Protocol, val limits
+             catch (error: java.nio.charset.CharacterCodingException) { throw SerializerException("Invalid UTF-8") }
+     }
+     init { if (data.size > limits.maxBytes) throw SerializerException("Message byte limit") }
+-    // Check before indexing or slicing incoming bytes.
++    // Check before indexing or slicing incoming bytes.)serializer" R"serializer(
+     private fun requireBytes(count: Int) { if (count < 0 || count > data.size-offset) throw SerializerException("Truncated input") }
+     // Test the active protocol.
+     fun json(): Boolean = protocol == Protocol.JSON
+diff --git a/src/rust_runtime.inc b/src/rust_runtime.inc
+index 7c80f66..6b277f4 100644
+--- a/src/rust_runtime.inc
++++ b/src/rust_runtime.inc
+@@ -132,7 +132,7 @@ impl<'a> SrlReader<'a> {
+     fn whitespace(&mut self) { while self.data.get(self.offset).is_some_and(|b| matches!(b, 32 | 9 | 10 | 13)) { self.offset += 1; } }
+     /// Require one delimiter.
+     fn expect(&mut self, value: u8) -> SrlResult<()> { self.whitespace(); if self.take(1)?[0] != value { return Err(Error("Unexpected delimiter")); } Ok(()) }
+-    /// Read compact integers without indexing incomplete input.
++    /// Read compact integers without indexing incomplete input.)serializer" R"serializer(
+     fn compact(&mut self) -> SrlResult<usize> {
+         let first = self.take(1)?[0]; let mut value = (first & 63) as usize;
+         for byte in self.take((first >> 6) as usize)? { value = value*256 + *byte as usize; } Ok(value)
+diff --git a/src/swift_runtime.inc b/src/swift_runtime.inc
+index e773899..221724d 100644
+--- a/src/swift_runtime.inc
++++ b/src/swift_runtime.inc
+@@ -127,7 +127,7 @@ fileprivate final class SrlReader {
+     private var depth = 0
+     private var elements = 0
+     // Share immutable array storage during a call; returned model values own their data.
+-    init(_ data: [UInt8], _ protocolValue: Protocol, _ limits: Limits) throws {
++    init(_ data: [UInt8], _ protocolValue: Protocol, _ limits: Limits) throws {)serializer" R"serializer(
+         guard min(limits.maxBytes, limits.maxStringBytes, limits.maxElements, limits.maxDepth) >= 0 else { throw SerializerError.invalid("Invalid limits") }
+         guard data.count <= limits.maxBytes else { throw SerializerError.invalid("Message byte limit") }
+         self.data = data; self.protocolValue = protocolValue; self.limits = limits

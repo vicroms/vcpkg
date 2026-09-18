@@ -8,6 +8,8 @@ vcpkg_from_github(
     REF aa96e132bff529db27f2016d44388fddf146f43c
     SHA512 b4fcaaa81363435e43013fd1439b9c8753d6072dad0838fdf1ea938f71067283721111a1a1fba0ac0abcec5196377ad82413bf93dbbb31e57a3bc507d957cbe1
     HEAD_REF main
+    PATCHES
+        fix-msvc-string-literal-limit.patch
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
