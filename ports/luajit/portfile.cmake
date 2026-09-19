@@ -49,6 +49,7 @@ if(VCPKG_DETECTED_MSVC)
 
     # jit including the specific vmdef.lua generated during the build
     file(COPY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/src/jit" DESTINATION "${CURRENT_PACKAGES_DIR}/tools/luajit/lua")
+    file(REMOVE "${CURRENT_PACKAGES_DIR}/tools/luajit/lua/jit/.gitignore")
 
 else()
     vcpkg_list(SET options)
