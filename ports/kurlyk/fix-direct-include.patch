@@ -1,0 +1,17 @@
+diff --git a/include/kurlyk/websocket/client/SimpleWeb/SocketClient.hpp b/include/kurlyk/websocket/client/SimpleWeb/SocketClient.hpp
+index f567a3b..f8b3833 100644
+--- a/include/kurlyk/websocket/client/SimpleWeb/SocketClient.hpp
++++ b/include/kurlyk/websocket/client/SimpleWeb/SocketClient.hpp
+@@ -11,7 +11,11 @@
+ /// For more details on the Simple-Web-Server library, see:
+ /// \see https://gitlab.com/eidheim/Simple-Web-Server
+ 
+-#include <client_ws.hpp>
++#ifndef ASIO_STANDALONE
++#define ASIO_STANDALONE
++#endif
++
++#include <kurlyk/third_party/simple-websocket-server/client_ws.hpp>
+ 
+ #ifdef ASIO_STANDALONE
+ #include <asio/ssl.hpp>

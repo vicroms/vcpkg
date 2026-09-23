@@ -3,6 +3,8 @@ vcpkg_from_github(
     REPO LimiNode/kurlyk
     REF v1.1.0
     SHA512 aab4df757cb27fb94f434b42a4cdefc53ae73751b8464579f53ab63e398f5bab1a17902d58b056e12baeac72e5e8624556abeec39c01043ed87466a5986a83f3
+    PATCHES
+        fix-direct-include.patch
 )
 
 # Simple-WebSocket-Server is header-only and is not a standalone vcpkg port.
