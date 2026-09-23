@@ -11,6 +11,7 @@ vcpkg_from_github(
     SHA512 4da6f6264c060f34bd25413637fe8bc77618f484558e64ec22ae54c1adf268d5f46dd5738e16a3f2ea13a0e0127c623911d10dc6eb5bca92b038b8221368ce5f
     HEAD_REF main
     PATCHES
+        msgsl-5.patch
         shared-zstd.patch
 )
 
