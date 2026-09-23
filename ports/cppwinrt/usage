@@ -3,12 +3,21 @@ The C++/WinRT package provides CMake targets:
     find_package(cppwinrt CONFIG REQUIRED)
     target_link_libraries(main PRIVATE Microsoft::CppWinRT)
 
-In addition, two variables are also exported: CPPWINRT_TOOL points to cppwinrt.exe; CPPWINRT_MODULE_FILES lists of paths to all .ixx files.
+CPPWINRT_TOOL points to cppwinrt.exe.
 
-When installed with the "modules" feature, CPPWINRT_MODULE_FILES lists the generated C++20 module interface files (.ixx). Add them to your target:
+When installed with the "modules" feature, CPPWINRT_MODULE_DIR is the module source directory and CPPWINRT_MODULE_FILES lists the generated module interface files (.ixx).
 
+The modules require MSVC v14.50 (v145) or later and import the C++ standard library module. With CMake 4.4, enable its experimental import std support before project():
+
+    set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "f35a9ac6-8463-4d38-8eec-5d6008153e7d")
+
+The required value changes between CMake releases. Then add the modules to a C++23 target:
+
+    target_compile_features(main PRIVATE cxx_std_23)
+    set_property(TARGET main PROPERTY CXX_MODULE_STD ON)
     target_sources(main
         PRIVATE
             FILE_SET cxx_modules TYPE CXX_MODULES
+            BASE_DIRS ${CPPWINRT_MODULE_DIR}
             FILES ${CPPWINRT_MODULE_FILES}
     )

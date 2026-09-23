@@ -20,7 +20,8 @@ endif()
 set(CPPWINRT_TOOL "${_cppwinrt_root}/@tool_path@")
 
 if(@CPPWINRT_MODULES@)
-    file(GLOB CPPWINRT_MODULE_FILES "${_cppwinrt_root}/include/winrt/*.ixx")
+    set(CPPWINRT_MODULE_DIR "${_cppwinrt_root}/include/winrt")
+    file(GLOB CPPWINRT_MODULE_FILES "${CPPWINRT_MODULE_DIR}/*.ixx")
 endif()
 
 unset(_cppwinrt_root)
