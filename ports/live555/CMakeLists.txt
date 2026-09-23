@@ -41,6 +41,21 @@ file(GLOB USAGE_ENVIRONMENT_SRCS UsageEnvironment/*.c UsageEnvironment/*.cpp)
 add_library(UsageEnvironment ${USAGE_ENVIRONMENT_SRCS})
 target_include_directories(UsageEnvironment PUBLIC $<INSTALL_INTERFACE:include>)
 
+target_link_libraries(groupsock PUBLIC
+    UsageEnvironment
+    $<$<PLATFORM_ID:Windows>:ws2_32>
+)
+target_link_libraries(BasicUsageEnvironment PUBLIC
+    groupsock
+    UsageEnvironment
+)
+target_link_libraries(liveMedia PUBLIC
+    groupsock
+    UsageEnvironment
+    OpenSSL::SSL
+    OpenSSL::Crypto
+)
+
 file(WRITE "${CMAKE_BINARY_DIR}/unofficial-live555-config.cmake"
 [[
 include(CMakeFindDependencyMacro)
