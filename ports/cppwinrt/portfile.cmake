@@ -36,10 +36,10 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS unused_cppwinrt_options
     FEATURES
         modules     CPPWINRT_MODULES
         fastabi     CPPWINRT_FASTABI
-        windowsapp  CPPWINRT_WINDOWSAPP
 )
 
 unset(unused_cppwinrt_options)
+set(CPPWINRT_WINDOWSAPP ON)
 
 #--- Create response file
 set(args "")

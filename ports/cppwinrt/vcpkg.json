@@ -13,9 +13,6 @@
     },
     "modules": {
       "description": "Provides C++ modules for C++/WinRT. The modules are named winrt.Ns.X."
-    },
-    "windowsapp": {
-      "description": "Links the WindowsApp.lib umbrella library for Windows Runtime."
     }
   }
 }
