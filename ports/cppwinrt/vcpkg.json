@@ -7,6 +7,9 @@
   "documentation": "https://docs.microsoft.com/windows/uwp/cpp-and-winrt-apis/",
   "license": "MIT",
   "supports": "windows",
+  "default-features": [
+    "windowsapp"
+  ],
   "features": {
     "fastabi": {
       "description": "Enables Fast ABI feature for both consuming and producing projections."
