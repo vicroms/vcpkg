@@ -9,6 +9,7 @@ set(patches
   adjust-python-dep.patch
   adjust-args.patch
   remove-pkgconfig-specialization.patch
+  fix-windows-rc-args.patch
 )
 set(scripts
   vcpkg-port-config.cmake

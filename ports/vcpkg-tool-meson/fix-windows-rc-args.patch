@@ -1,0 +1,30 @@
+diff --git a/mesonbuild/modules/windows.py b/mesonbuild/modules/windows.py
+index d4a550a..12e5ef0 100644
+--- a/mesonbuild/modules/windows.py
++++ b/mesonbuild/modules/windows.py
+@@ -188,8 +188,8 @@ class WindowsModule(ExtensionModule):
+                 compiler = self.detect_compiler(state.environment.coredata.compilers[MachineChoice.HOST])
+                 command.extend(state.environment.get_build_command())
+                 command.extend(['--internal', 'rc',
+-                                '--rc', *rescomp.get_command(),
+-                                '--cl', *compiler.get_exelist(False)])
++                                *[f'--rc={arg}' for arg in rescomp.get_command()],
++                                *[f'--cl={arg}' for arg in compiler.get_exelist(False)]])
+ 
+                 if compiler.id in {'msvc', 'clang-cl', 'intel-cl'}:
+                     depfile_type = 'msvc'
+diff --git a/mesonbuild/scripts/rc.py b/mesonbuild/scripts/rc.py
+index 877425c..dd076b8 100644
+--- a/mesonbuild/scripts/rc.py
++++ b/mesonbuild/scripts/rc.py
+@@ -11,8 +11,8 @@ import typing as T
+ 
+ 
+ parser = argparse.ArgumentParser()
+-parser.add_argument('--rc', nargs='+', required=True)
+-parser.add_argument('--cl', nargs='+', required=True)
++parser.add_argument('--rc', action='append', required=True)
++parser.add_argument('--cl', action='append', required=True)
+ parser.add_argument('--Xarg', action='append')
+ 
+ 
