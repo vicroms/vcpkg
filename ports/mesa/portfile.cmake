@@ -13,6 +13,7 @@ vcpkg_from_gitlab(
     HEAD_REF master
     PATCHES
         001-windows-gles-dispatch.patch
+        002-fix-lavapipe-msvc-release.patch
 )
 
 x_vcpkg_get_python_packages(PYTHON_VERSION "3" OUT_PYTHON_VAR "PYTHON3" PACKAGES setuptools mako pyyaml)
@@ -59,7 +60,10 @@ if("lavapipe" IN_LIST FEATURES)
     list(APPEND MESA_ADDITIONAL_BINARIES
         "glslangValidator=['${CURRENT_HOST_INSTALLED_DIR}/tools/glslang/glslangValidator${VCPKG_HOST_EXECUTABLE_SUFFIX}']"
     )
-    list(APPEND MESA_OPTIONS -Dvulkan-drivers=['swrast'])
+    list(APPEND MESA_OPTIONS
+        -Dvulkan-drivers=['swrast']
+        -Dvulkan-manifest-per-architecture=false
+    )
 endif()
 
 if("llvm" IN_LIST FEATURES OR "lavapipe" IN_LIST FEATURES OR VCPKG_TARGET_IS_WINDOWS)
@@ -81,16 +85,13 @@ else()
     endif()
 endif()
 
-set(use_gles OFF)
 if("gles1" IN_LIST FEATURES)
     list(APPEND MESA_OPTIONS -Dgles1=enabled)
-    set(use_gles ON)
 else()
     list(APPEND MESA_OPTIONS -Dgles1=disabled)
 endif()
 if("gles2" IN_LIST FEATURES)
     list(APPEND MESA_OPTIONS -Dgles2=enabled)
-    set(use_gles ON)
 else()
     list(APPEND MESA_OPTIONS -Dgles2=disabled)
 endif()
@@ -116,10 +117,15 @@ elseif(VCPKG_TARGET_IS_ANDROID)
     list(APPEND MESA_ADDITIONAL_PROPERTIES
         "pkg_config_libdir = ['${MESA_EMPTY_PKG_CONFIG_DIR}']"
     )
+    if("llvm" IN_LIST FEATURES)
+        set(MESA_ANDROID_GALLIUM_DRIVER llvmpipe)
+    else()
+        set(MESA_ANDROID_GALLIUM_DRIVER softpipe)
+    endif()
     list(APPEND MESA_OPTIONS
         -Dplatforms=['android']
         -Dandroid-stub=true
-        -Dgallium-drivers=['swrast']
+        "-Dgallium-drivers=['${MESA_ANDROID_GALLIUM_DRIVER}']"
     )
 endif()
 
@@ -181,4 +187,11 @@ if("lavapipe" IN_LIST FEATURES)
          RENAME usage)
 endif()
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/docs/license.rst")
+vcpkg_install_copyright(
+    FILE_LIST
+        "${SOURCE_PATH}/docs/license.rst"
+        "${SOURCE_PATH}/licenses/Apache-2.0"
+        "${SOURCE_PATH}/licenses/BSL-1.0"
+        "${SOURCE_PATH}/licenses/MIT"
+        "${SOURCE_PATH}/licenses/SGI-B-2.0"
+)

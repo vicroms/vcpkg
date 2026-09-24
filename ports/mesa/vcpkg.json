@@ -3,19 +3,9 @@
   "version": "26.2.3",
   "description": "Mesa - The 3D Graphics Library",
   "homepage": "https://www.mesa3d.org/",
-  "license": "MIT AND BSL-1.0 AND SGI-B-2.0",
+  "license": "MIT AND BSL-1.0 AND SGI-B-2.0 AND Apache-2.0",
   "supports": "!(windows & arm) & !staticcrt & !uwp",
   "dependencies": [
-    {
-      "name": "vcpkg-get-python-packages",
-      "host": true
-    },
-    {
-      "name": "vcpkg-tool-meson",
-      "host": true
-    },
-    "zlib",
-    "zstd",
     {
       "name": "directx-headers",
       "platform": "windows"
@@ -25,12 +15,21 @@
       "default-features": false,
       "features": [
         "enable-rtti",
-        "libclc",
-        "tools",
-        "target-x86"
+        "target-x86",
+        "tools"
       ],
       "platform": "windows"
-    }
+    },
+    {
+      "name": "vcpkg-get-python-packages",
+      "host": true
+    },
+    {
+      "name": "vcpkg-tool-meson",
+      "host": true
+    },
+    "zlib",
+    "zstd"
   ],
   "default-features": [
     "gles1",
@@ -75,9 +74,8 @@
           "default-features": false,
           "features": [
             "enable-rtti",
-            "libclc",
-            "tools",
-            "target-x86"
+            "target-x86",
+            "tools"
           ]
         }
       ]
@@ -98,7 +96,6 @@
           "default-features": false,
           "features": [
             "enable-rtti",
-            "libclc",
             "tools"
           ]
         },
@@ -117,6 +114,14 @@
             "target-aarch64"
           ],
           "platform": "arm64"
+        },
+        {
+          "name": "llvm",
+          "default-features": false,
+          "features": [
+            "libclc"
+          ],
+          "platform": "!windows"
         },
         {
           "name": "llvm",
