@@ -29,7 +29,7 @@ if(NOT SCRIPT_MESON)
     file(MAKE_DIRECTORY "${path_to_search}-tmp")
     file(ARCHIVE_EXTRACT INPUT "${archive_path}"
         DESTINATION "${path_to_search}-tmp"
-        PATTERNS "meson-${ref}/mesonbuild" "meson-${ref}/meson.py"
+        PATTERNS "meson-${ref}/mesonbuild" "meson-${ref}/meson.py" "meson-${ref}/COPYING"
         )
     z_vcpkg_apply_patches(
         SOURCE_PATH "${path_to_search}-tmp/meson-${ref}"
@@ -39,6 +39,7 @@ if(NOT SCRIPT_MESON)
     file(MAKE_DIRECTORY "${path_to_search}")
     file(RENAME "${path_to_search}-tmp/meson-${ref}/meson.py" "${path_to_search}/meson.py")
     file(RENAME "${path_to_search}-tmp/meson-${ref}/mesonbuild" "${path_to_search}/mesonbuild")
+    file(RENAME "${path_to_search}-tmp/meson-${ref}/COPYING" "${path_to_search}/COPYING")
     file(REMOVE_RECURSE "${path_to_search}-tmp")
     set(SCRIPT_MESON "${path_to_search}/meson.py")
 endif()

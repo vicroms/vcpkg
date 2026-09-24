@@ -39,6 +39,10 @@ list(TRANSFORM patches REPLACE [[^(..*)$]] [["${CMAKE_CURRENT_LIST_DIR}/\0"]])
 list(JOIN patches "\n            " PATCHES)
 configure_file("${CMAKE_CURRENT_LIST_DIR}/vcpkg-port-config.cmake" "${CURRENT_PACKAGES_DIR}/share/${PORT}/vcpkg-port-config.cmake" @ONLY)
 
-vcpkg_install_copyright(FILE_LIST "${VCPKG_ROOT_DIR}/LICENSE.txt")
-
 include("${CURRENT_PACKAGES_DIR}/share/${PORT}/vcpkg-port-config.cmake")
+
+vcpkg_install_copyright(
+  FILE_LIST
+    "${VCPKG_ROOT_DIR}/LICENSE.txt"
+    "${path_to_search}/COPYING"
+)
