@@ -9,6 +9,10 @@
   "license": "LGPL-2.1-or-later",
   "supports": "!osx & !xbox",
   "dependencies": [
+    {
+      "name": "getopt-win32",
+      "platform": "windows & !mingw"
+    },
     "glib",
     {
       "name": "vcpkg-cmake",

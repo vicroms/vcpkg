@@ -8,6 +8,7 @@ vcpkg_from_github(
         only-install-one-flavor.patch
         glib.link.patch
         disable-docs.patch
+        use-packaged-getopt.patch
 )
 
 vcpkg_find_acquire_program(PKGCONFIG)

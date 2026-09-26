@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1580600..5e670d6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,10 +40,13 @@ endif()
+ 
+ if (MSVC)
+   add_definitions(-DWIN32 -D_CRT_SECURE_NO_WARNINGS)
+-  include_directories(${lcm_SOURCE_DIR}/WinSpecific/getopt)
+   include_directories(${lcm_SOURCE_DIR})
+-  add_subdirectory(WinSpecific)
+-  set(lcm-winport lcm-winport)
++  find_package(getopt CONFIG REQUIRED)
++  if(TARGET getopt::getopt_shared)
++    set(lcm-winport getopt::getopt_shared)
++  else()
++    set(lcm-winport getopt::getopt_static)
++  endif()
+ else()
+   set(lcm-winport)
+ endif()
