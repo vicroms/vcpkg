@@ -47,4 +47,11 @@ if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
 endif()
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING")
+set(copyright_files "${SOURCE_PATH}/COPYING")
+if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
+    list(APPEND copyright_files
+        "${CURRENT_INSTALLED_DIR}/share/getopt-win32/copyright"
+        "${CURRENT_INSTALLED_DIR}/include/getopt.h"
+    )
+endif()
+vcpkg_install_copyright(FILE_LIST ${copyright_files})
