@@ -130,10 +130,8 @@ def main():
 
         try:
             new_sha = compute_sha512_from_url(url)
-        except Exception as exc:
-            print(f"  ERROR: {exc}")
-            print()
-            continue
+        except OSError as exc:
+            sys.exit(f"ERROR: Unable to download and hash {url}: {exc}")
 
         print(f"  New : {new_sha[:40]}...")
 
