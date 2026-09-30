@@ -1,0 +1,68 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 90fcd10..ca37ada 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -200,11 +200,14 @@ endif()
+ # = Main Target =
+ # ================
+ 
++configure_file(cmake/features.hpp.in generated/neko/network/features.hpp @ONLY)
++
+ add_library(NekoNetwork STATIC src/neko/network/network.cpp)
+ add_library(Neko::Network ALIAS NekoNetwork)
+ 
+ target_include_directories(NekoNetwork PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>
+     $<INSTALL_INTERFACE:include>
+ )
+ 
+@@ -296,6 +299,9 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+     PATTERN "*.hpp"
+     PATTERN "*.cppm"
+ )
++install(FILES ${CMAKE_CURRENT_BINARY_DIR}/generated/neko/network/features.hpp
++    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/neko/network
++)
+ 
+ # Install targets
+ install(TARGETS NekoNetwork
+diff --git a/cmake/NekoNetworkConfig.cmake.in b/cmake/NekoNetworkConfig.cmake.in
+index f137ea0..049ba09 100644
+--- a/cmake/NekoNetworkConfig.cmake.in
++++ b/cmake/NekoNetworkConfig.cmake.in
+@@ -8,7 +8,9 @@ include(CMakeFindDependencyMacro)
+ find_dependency(NekoSchema)
+ find_dependency(NekoFunction)
+ find_dependency(NekoSystem)
+-find_dependency(NekoLog)
++if(@NEKO_NETWORK_ENABLE_NLOG@)
++    find_dependency(NekoLog)
++endif()
+ find_dependency(CURL)
+ 
+ # Whether this build actually linked OpenSSL is decided at configure time:
+diff --git a/cmake/features.hpp.in b/cmake/features.hpp.in
+new file mode 100644
+index 0000000..621cfa6
+--- /dev/null
++++ b/cmake/features.hpp.in
+@@ -0,0 +1,3 @@
++#pragma once
++
++#cmakedefine01 NEKO_NETWORK_ENABLE_NLOG
+diff --git a/include/neko/network/networkCommon.hpp b/include/neko/network/networkCommon.hpp
+index ba85aed..304ae11 100644
+--- a/include/neko/network/networkCommon.hpp
++++ b/include/neko/network/networkCommon.hpp
+@@ -2,8 +2,9 @@
+ 
+ // Neko Module
+ #include <neko/schema/types.hpp>
++#include <neko/network/features.hpp>
+ 
+-#if __has_include(<neko/log/nlog.hpp>)
++#if NEKO_NETWORK_ENABLE_NLOG
+ #define NEKO_IMPORT_NLOG
+ #include <neko/log/nlog.hpp>
+ #endif
