@@ -23,12 +23,12 @@ vcpkg_from_github(
       0025-fix-cuda-host-std-flag-forwarding.patch
       0026-cuda-msvc-preprocessor.patch
       0028-ffmpeg9-support.patch
+      0029-use-system-dlpack.patch
 )
 
 # Disallow accidental build of vendored copies
 file(GLOB third_party "${SOURCE_PATH}/3rdparty/*")
 list(FILTER third_party EXCLUDE REGEX "/ippicv\$")
-list(FILTER third_party EXCLUDE REGEX "/dlpack\$")
 file(REMOVE_RECURSE ${third_party})
 file(REMOVE "${SOURCE_PATH}/cmake/FindCUDNN.cmake")
 

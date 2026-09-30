@@ -381,6 +381,7 @@
     "python": {
       "description": "Python wrapper support for opencv",
       "dependencies": [
+        "dlpack",
         {
           "name": "python3",
           "default-features": false,
