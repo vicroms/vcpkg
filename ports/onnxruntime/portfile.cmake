@@ -17,6 +17,7 @@ vcpkg_from_github(
         fix-cmake-cuda.patch
         fix-missing-cstdint.patch
         fix-cmake-mlas.patch
+        fix-gsl-config.patch
 )
 
 # Accept ms-gsl 5; its config version file uses SameMajorVersion.
