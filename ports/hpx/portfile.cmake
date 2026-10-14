@@ -11,6 +11,7 @@ vcpkg_from_github(
     HEAD_REF master
     PATCHES
         fix-asio-1.33.patch # https://github.com/STEllAR-GROUP/hpx/commit/f073c54f9c69
+        fix-asio-resolver.patch
 )
 
 vcpkg_check_features(
