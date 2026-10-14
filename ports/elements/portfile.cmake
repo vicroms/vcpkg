@@ -58,4 +58,9 @@ if(NOT DEFINED VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     file(INSTALL ${ELEMENTS_LIBS} DESTINATION "${CURRENT_PACKAGES_DIR}/debug/lib")
 endif()
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/README.md")
+vcpkg_install_copyright(FILE_LIST
+    "${SOURCE_PATH}/README.md"
+    "${SOURCE_PATH}/lib/include/elements/base_view.hpp"
+    "${SOURCE_PATH}/lib/include/elements/support/detail/stb_image.h"
+    "${SOURCE_PATH}/lib/infra/include/infra/support.hpp"
+)

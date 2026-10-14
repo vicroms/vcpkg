@@ -4,7 +4,7 @@
   "port-version": 1,
   "description": "Elements is a lightweight, fine-grained, resolution independent, modular GUI library.",
   "homepage": "https://cycfi.github.io/elements",
-  "license": "MIT",
+  "license": "MIT AND Zlib",
   "supports": "(windows & staticcrt) | osx | linux",
   "dependencies": [
     "asio",
