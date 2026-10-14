@@ -1,0 +1,38 @@
+diff --git a/fastlowess.h b/fastlowess.h
+index 6124bc3..3c1ef70 100644
+--- a/fastlowess.h
++++ b/fastlowess.h
+@@ -4,6 +4,14 @@
+ #ifndef FASTLOWESS_H
+ #define FASTLOWESS_H
+ 
++typedef struct fastlowess_CppLowess fastlowess_CppLowess;
++typedef struct fastlowess_CppOnlineLowess fastlowess_CppOnlineLowess;
++typedef struct fastlowess_CppPredictHandle fastlowess_CppPredictHandle;
++typedef struct fastlowess_CppStreamingLowess fastlowess_CppStreamingLowess;
++typedef struct fastlowess_CppLowessResult fastlowess_CppLowessResult;
++typedef struct fastlowess_CppPredictResult fastlowess_CppPredictResult;
++typedef struct fastlowess_CppOnlineOutput fastlowess_CppOnlineOutput;
++
+ struct fastlowess_CppLowess;
+ 
+ struct fastlowess_CppOnlineLowess;
+@@ -103,7 +111,9 @@ struct fastlowess_CppOnlineOutput {
+   char *error;
+ };
+ 
++#ifdef __cplusplus
+ extern "C" {
++#endif
+ 
+ const char *cpp_last_error_message();
+ 
+@@ -310,6 +320,8 @@ void cpp_online_free(fastlowess_CppOnlineLowess *ptr);
+ /// `result` must be a valid pointer to a CppLowessResult struct.
+ void cpp_lowess_free_result(fastlowess_CppLowessResult *result);
+ 
++#ifdef __cplusplus
+ }  // extern "C"
++#endif
+ 
+ #endif  // FASTLOWESS_H

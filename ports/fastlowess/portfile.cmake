@@ -87,6 +87,7 @@ vcpkg_extract_source_archive(
     FASTLOWESS_PACKAGE_DIR
     ARCHIVE "${FASTLOWESS_ARCHIVE}"
     NO_REMOVE_ONE_LEVEL
+    PATCHES c-compatible-header.patch
 )
 if(VCPKG_TARGET_IS_OSX)
     vcpkg_execute_required_process(
