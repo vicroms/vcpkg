@@ -89,6 +89,7 @@ else()
     set(FASTLOWESS_LIBRARY_DIR lib)
 endif()
 
+set(FASTLOWESS_INSTALL_NAME "@rpath/${FASTLOWESS_BINARY_NAME}")
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/fastlowessConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/fastlowessConfig.cmake"

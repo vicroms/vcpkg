@@ -15,7 +15,7 @@ if(NOT TARGET fastlowess::fastlowess)
         set_property(TARGET fastlowess::fastlowess PROPERTY IMPORTED_NO_SONAME TRUE)
     elseif(APPLE)
         set_target_properties(fastlowess::fastlowess PROPERTIES
-            IMPORTED_SONAME_RELEASE "@rpath/@FASTLOWESS_BINARY_NAME@"
+            IMPORTED_SONAME_RELEASE "@FASTLOWESS_INSTALL_NAME@"
         )
     endif()
     if(WIN32)
