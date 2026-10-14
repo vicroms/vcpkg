@@ -6,11 +6,11 @@ include(CMakePackageConfigHelpers)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckCXXSourceCompiles)
     check_cxx_source_compiles(
-        "#include <features.h>\n#ifndef __GLIBC__\n#error Target libc is not glibc\n#endif\nint main() { return 0; }"
+        "#include <features.h>\n#ifndef __GLIBC__\n#error Target libc is not glibc\n#elif !__GLIBC_PREREQ(2, 34)\n#error Target glibc is older than 2.34\n#endif\nint main() { return 0; }"
         FASTLOWESS_TARGET_USES_GLIBC
     )
     if(NOT FASTLOWESS_TARGET_USES_GLIBC)
-        message(FATAL_ERROR "The curated fastlowess port supports glibc Linux targets only.")
+        message(FATAL_ERROR "The curated fastlowess port requires glibc 2.34 or newer.")
     endif()
 endif()
 
