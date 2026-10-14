@@ -108,6 +108,18 @@ vcpkg_from_github(
     SHA512 b3a2df5847a4683b3f262612fe476f6ebc5ef336a779738140597a15ccac138f5786695f909b0b877afdc4635b7659441ece2cae7d2f45393f21d3905fe4cb8b
 )
 
+# The release report substitutes an MIT template for libm's actual notices.
+vcpkg_download_distfile(
+    LIBM_ARCHIVE
+    URLS "https://static.crates.io/crates/libm/libm-0.2.16.crate"
+    FILENAME "libm-0.2.16.crate"
+    SHA512 9bc85e6cdb7fe39e5546c47f167d2ca2abcf0aefaa673eafd0dda6bb9ec03ce19433dd2b8c0e226a3c08340d5c005cdeab4c642b49ef926f2cb0681b1d9661f9
+)
+vcpkg_extract_source_archive(
+    LIBM_SOURCE_PATH
+    ARCHIVE "${LIBM_ARCHIVE}"
+)
+
 set(FASTLOESS_CMAKE_OPTIONS
     "-DFASTLOESS_VERSION=${VERSION}"
     "-DFASTLOESS_PACKAGE_DIR=${FASTLOESS_PACKAGE_DIR}"
@@ -129,7 +141,15 @@ file(
     "${CURRENT_PACKAGES_DIR}/debug/share"
 )
 vcpkg_install_copyright(
-    FILE_LIST "${SOURCE_PATH}/LICENSE-MIT" "${SOURCE_PATH}/LICENSE-APACHE"
+    FILE_LIST
+        "${SOURCE_PATH}/LICENSE-MIT"
+        "${SOURCE_PATH}/LICENSE-APACHE"
+        "${LIBM_SOURCE_PATH}/LICENSE.txt"
+        "${LIBM_SOURCE_PATH}/src/math/acos.rs"
+        "${LIBM_SOURCE_PATH}/src/math/exp.rs"
+        "${LIBM_SOURCE_PATH}/src/math/k_tan.rs"
+        "${LIBM_SOURCE_PATH}/src/math/cbrt.rs"
+        "${LIBM_SOURCE_PATH}/src/math/exp2.rs"
 )
 file(
     INSTALL "${CURRENT_PORT_DIR}/usage"
