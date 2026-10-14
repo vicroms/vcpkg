@@ -13,11 +13,11 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckCXXSourceCompiles)
     check_cxx_source_compiles(
-        "#include <features.h>\n#ifndef __GLIBC__\n#error Target libc is not glibc\n#endif\nint main() { return 0; }"
-        FASTLOESS_TARGET_USES_GLIBC
+        "#include <features.h>\n#ifndef __GLIBC__\n#error Target libc is not glibc\n#elif !__GLIBC_PREREQ(2, 35)\n#error Target glibc is older than 2.35\n#endif\nint main() { return 0; }"
+        FASTLOESS_TARGET_HAS_SUPPORTED_GLIBC
     )
-    if(NOT FASTLOESS_TARGET_USES_GLIBC)
-        message(FATAL_ERROR "The curated fastloess port supports glibc Linux targets only.")
+    if(NOT FASTLOESS_TARGET_HAS_SUPPORTED_GLIBC)
+        message(FATAL_ERROR "The curated fastloess binaries require target glibc 2.35 or newer.")
     endif()
 endif()
 
