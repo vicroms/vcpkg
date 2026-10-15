@@ -86,9 +86,9 @@ if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
     vcpkg_list(APPEND configure_arguments "--extra-cxxflags=${VCPKG_DETECTED_CMAKE_CXX_FLAGS}")
 
     if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
-        vcpkg_list(APPEND configure_arguments --enable-shared-library --disable-static-library)
+        vcpkg_list(APPEND configure_arguments --enable-shared-library --disable-static-library --build-targets=shared,cli)
     else()
-        vcpkg_list(APPEND configure_arguments --disable-shared-library --enable-static-library)
+        vcpkg_list(APPEND configure_arguments --disable-shared-library --enable-static-library --build-targets=static,cli)
     endif()
 
     if(VCPKG_CRT_LINKAGE STREQUAL "dynamic")
@@ -178,6 +178,15 @@ else()
 endif()
 
 vcpkg_cmake_config_fixup()
+
+set(BOTAN_HAS_DEBUG 1)
+if(VCPKG_BUILD_TYPE)
+    set(BOTAN_HAS_DEBUG 0)
+endif()
+configure_file("${CMAKE_CURRENT_LIST_DIR}/fixup-config.cmake.in"
+    "${CURRENT_BUILDTREES_DIR}/fixup-config.cmake" @ONLY)
+file(READ "${CURRENT_BUILDTREES_DIR}/fixup-config.cmake" config_fixup)
+file(APPEND "${CURRENT_PACKAGES_DIR}/share/${PORT}/botan-config.cmake" "\n${config_fixup}")
 
 if(pkgconfig_requires)
     list(JOIN pkgconfig_requires ", " pkgconfig_requires)
