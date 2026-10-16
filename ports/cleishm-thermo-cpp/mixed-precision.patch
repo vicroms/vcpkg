@@ -1,0 +1,62 @@
+diff --git a/include/thermo/thermo.hpp b/include/thermo/thermo.hpp
+index b2464ad..7456127 100644
+--- a/include/thermo/thermo.hpp
++++ b/include/thermo/thermo.hpp
+@@ -1102,7 +1102,7 @@ template<typename Scale, typename Delta1, typename Delta2>
+ constexpr auto operator+(const temperature<Scale, Delta1>& lhs, const temperature<Scale, Delta2>& rhs)
+     -> temperature<Scale, std::common_type_t<Delta1, Delta2>> {
+     using cd = std::common_type_t<Delta1, Delta2>;
+-    return temperature<Scale, cd>(cd(lhs.count()) + cd(rhs.count()));
++    return temperature<Scale, cd>(delta_cast<cd>(Delta1(lhs.count())) + delta_cast<cd>(Delta2(rhs.count())));
+ }
+ 
+ /** @brief Subtracts two temperatures on the same scale. */
+@@ -1110,7 +1110,7 @@ template<typename Scale, typename Delta1, typename Delta2>
+ constexpr auto operator-(const temperature<Scale, Delta1>& lhs, const temperature<Scale, Delta2>& rhs)
+     -> temperature<Scale, std::common_type_t<Delta1, Delta2>> {
+     using cd = std::common_type_t<Delta1, Delta2>;
+-    return temperature<Scale, cd>(cd(lhs.count()) - cd(rhs.count()));
++    return temperature<Scale, cd>(delta_cast<cd>(Delta1(lhs.count())) - delta_cast<cd>(Delta2(rhs.count())));
+ }
+ 
+ /**
+@@ -1125,7 +1125,7 @@ template<typename Scale, typename Delta1, typename Delta2>
+ constexpr auto difference(const temperature<Scale, Delta1>& lhs, const temperature<Scale, Delta2>& rhs)
+     -> std::common_type_t<Delta1, Delta2> {
+     using cd = std::common_type_t<Delta1, Delta2>;
+-    return cd(lhs.count() - rhs.count());
++    return delta_cast<cd>(Delta1(lhs.count())) - delta_cast<cd>(Delta2(rhs.count()));
+ }
+ 
+ /** @brief Adds a delta to a temperature. */
+@@ -1133,7 +1133,7 @@ template<typename Scale, typename Delta1, typename Rep2, typename Precision2>
+ constexpr auto operator+(const temperature<Scale, Delta1>& t, const delta<Rep2, Precision2>& d)
+     -> temperature<Scale, std::common_type_t<Delta1, delta<Rep2, Precision2>>> {
+     using result_delta = std::common_type_t<Delta1, delta<Rep2, Precision2>>;
+-    return temperature<Scale, result_delta>(result_delta(t.count()) + result_delta(d));
++    return temperature<Scale, result_delta>(delta_cast<result_delta>(Delta1(t.count())) + result_delta(d));
+ }
+ 
+ /** @brief Adds a temperature to a delta. */
+@@ -1148,18 +1148,18 @@ template<typename Scale, typename Delta1, typename Rep2, typename Precision2>
+ constexpr auto operator-(const temperature<Scale, Delta1>& t, const delta<Rep2, Precision2>& d)
+     -> temperature<Scale, std::common_type_t<Delta1, delta<Rep2, Precision2>>> {
+     using result_delta = std::common_type_t<Delta1, delta<Rep2, Precision2>>;
+-    return temperature<Scale, result_delta>(result_delta(t.count()) - result_delta(d));
++    return temperature<Scale, result_delta>(delta_cast<result_delta>(Delta1(t.count())) - result_delta(d));
+ }
+ 
+ template<typename Scale, typename Delta1, typename Delta2>
+ constexpr bool operator==(const temperature<Scale, Delta1>& lhs, const temperature<Scale, Delta2>& rhs) {
+-    return lhs.count() == rhs.count();
++    return Delta1(lhs.count()) == Delta2(rhs.count());
+ }
+ 
+ template<typename Scale, typename Delta1, typename Delta2>
+     requires std::three_way_comparable<std::common_type_t<typename Delta1::rep, typename Delta2::rep>>
+ constexpr auto operator<=>(const temperature<Scale, Delta1>& lhs, const temperature<Scale, Delta2>& rhs) {
+-    return lhs.count() <=> rhs.count();
++    return Delta1(lhs.count()) <=> Delta2(rhs.count());
+ }
+ 
+ /** @brief Celsius with 1 degree precision. */

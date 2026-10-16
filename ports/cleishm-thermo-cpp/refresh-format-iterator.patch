@@ -1,0 +1,12 @@
+diff --git a/include/thermo/thermo.hpp b/include/thermo/thermo.hpp
+index b2464ad..5e9d4a7 100644
+--- a/include/thermo/thermo.hpp
++++ b/include/thermo/thermo.hpp
+@@ -708,6 +708,7 @@ public:
+         if (it != ctx.end() && (*it == 'b' || *it == 's')) {
+             _form = *it == 'b' ? _unit_form::base : _unit_form::scaled;
+             ctx.advance_to(++it);
++            it = ctx.begin();
+         }
+         if (it == ctx.end() || *it == '}') {
+             if constexpr (Traits::prefix == nullptr) {
