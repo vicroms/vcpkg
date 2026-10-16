@@ -1,0 +1,12 @@
+diff --git a/reproc/src/process.posix.c b/reproc/src/process.posix.c
+index 100de5d..b413d45 100644
+--- a/reproc/src/process.posix.c
++++ b/reproc/src/process.posix.c
+@@ -10,6 +10,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <sys/resource.h>
++#include <sys/stat.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <unistd.h>

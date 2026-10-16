@@ -1,0 +1,13 @@
+diff --git a/reproc/src/process.posix.c b/reproc/src/process.posix.c
+index 100de5d..73cdad6 100644
+--- a/reproc/src/process.posix.c
++++ b/reproc/src/process.posix.c
+@@ -310,7 +310,7 @@ static pid_t process_fork(const int *except, size_t num_except)
+ 
+   if (!proc_fd_dir) {
+     // Fallback to brute force.
+-    int r = get_max_fd();
++    r = get_max_fd();
+     if (r < 0) {
+       goto finish;
+     }

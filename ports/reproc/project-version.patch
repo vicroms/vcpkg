@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 19bb268..35a4804 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12...3.21)
+ 
+ project(
+   reproc
+-  VERSION 14.2.7
++  VERSION 14.2.8
+   DESCRIPTION "Cross-platform C99/C++11 process library"
+   HOMEPAGE_URL "https://github.com/DaanDeMeyer/reproc"
+   LANGUAGES C
