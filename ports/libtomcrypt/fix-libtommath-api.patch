@@ -1,0 +1,39 @@
+diff --git a/src/math/ltm_desc.c b/src/math/ltm_desc.c
+index baa9b15..d8105b5 100644
+--- a/src/math/ltm_desc.c
++++ b/src/math/ltm_desc.c
+@@ -175,14 +175,14 @@ static int write_radix(void *a, char *b, int radix)
+ {
+    LTC_ARGCHK(a != NULL);
+    LTC_ARGCHK(b != NULL);
+-   return mpi_to_ltc_error(mp_toradix(a, b, radix));
++   return mpi_to_ltc_error(mp_to_radix(a, b, SIZE_MAX, NULL, radix));
+ }
+ 
+ /* get size as unsigned char string */
+ static unsigned long unsigned_size(void *a)
+ {
+    LTC_ARGCHK(a != NULL);
+-   return mp_unsigned_bin_size(a);
++   return (unsigned long)mp_ubin_size(a);
+ }
+ 
+ /* store */
+@@ -190,7 +190,7 @@ static int unsigned_write(void *a, unsigned char *b)
+ {
+    LTC_ARGCHK(a != NULL);
+    LTC_ARGCHK(b != NULL);
+-   return mpi_to_ltc_error(mp_to_unsigned_bin(a, b));
++   return mpi_to_ltc_error(mp_to_ubin(a, b, SIZE_MAX, NULL));
+ }
+ 
+ /* read */
+@@ -198,7 +198,7 @@ static int unsigned_read(void *a, unsigned char *b, unsigned long len)
+ {
+    LTC_ARGCHK(a != NULL);
+    LTC_ARGCHK(b != NULL);
+-   return mpi_to_ltc_error(mp_read_unsigned_bin(a, b, len));
++   return mpi_to_ltc_error(mp_from_ubin(a, b, len));
+ }
+ 
+ /* add */

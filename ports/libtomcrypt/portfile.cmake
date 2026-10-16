@@ -6,6 +6,7 @@ vcpkg_from_github(
     HEAD_REF develop
     PATCHES
         fix-windows-arm.patch
+        fix-libtommath-api.patch
 )
 
 if(VCPKG_TARGET_IS_WINDOWS)
