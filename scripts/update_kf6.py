@@ -33,6 +33,7 @@ PORT_LIST = [
     "ki18n",
     "kitemmodels",
     "kitemviews",
+    "kwallet",
     "kwidgetsaddons",
     "kwindowsystem",
     "syntax-highlighting",
