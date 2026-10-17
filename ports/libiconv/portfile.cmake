@@ -56,6 +56,8 @@ vcpkg_make_configure(
 )
 vcpkg_make_install()
 
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/libcharset.h" "LIBCHARSET_DLL_EXPORTED " "")
+
 vcpkg_copy_pdbs()
 vcpkg_copy_tool_dependencies("${CURRENT_PACKAGES_DIR}/tools/${PORT}/bin")
 vcpkg_copy_tool_dependencies("${CURRENT_PACKAGES_DIR}/tools/${PORT}/debug/bin")
