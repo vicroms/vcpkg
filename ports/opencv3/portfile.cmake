@@ -564,7 +564,12 @@ file(REMOVE "${CURRENT_PACKAGES_DIR}/LICENSE")
 file(REMOVE "${CURRENT_PACKAGES_DIR}/debug/LICENSE")
 file(GLOB_RECURSE extra1_license_files "${CURRENT_PACKAGES_DIR}/share/licenses/*")
 file(GLOB_RECURSE extra2_license_files "${CURRENT_PACKAGES_DIR}/share/opencv3/licenses/*")
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE" ${extra1_license_files} ${extra2_license_files})
+vcpkg_install_copyright(FILE_LIST
+    "${SOURCE_PATH}/LICENSE"
+    "${SOURCE_PATH}/modules/core/src/softfloat.cpp"
+    ${extra1_license_files}
+    ${extra2_license_files}
+)
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/share/opencv3/licenses")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/share/licenses")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/share/opencv")
