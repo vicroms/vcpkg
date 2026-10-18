@@ -1,0 +1,12 @@
+glib-networking provides static GIO modules. Link the pkg-config modules for
+the enabled features: gioopenssl, giognutls, gioenvironmentproxy, giolibproxy.
+
+Before the first use of GIO networking, register each linked module once:
+
+    #include <gio/gio.h>
+    extern "C" void g_io_openssl_load(GIOModule*);
+    // In application initialization:
+    g_io_openssl_load(nullptr);
+
+Use g_io_gnutls_load, g_io_environmentproxy_load, or g_io_libproxy_load for
+the corresponding modules. GIO_MODULE_DIR is not used for static modules.
