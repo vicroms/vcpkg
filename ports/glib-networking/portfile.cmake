@@ -45,6 +45,7 @@ vcpkg_configure_meson(
     OPTIONS
         ${FEATURE_OPTIONS}
         -Dgnome_proxy=disabled
+        -Dtests=false
     ADDITIONAL_BINARIES
         "gio-querymodules = '${CURRENT_HOST_INSTALLED_DIR}/tools/glib/gio-querymodules${CMAKE_EXECUTABLE_SUFFIX}'"
 )
