@@ -6,6 +6,10 @@
   "homepage": "https://github.com/google/glog",
   "license": "BSD-3-Clause",
   "dependencies": [
+    {
+      "name": "dirent",
+      "platform": "windows"
+    },
     "gflags",
     {
       "name": "vcpkg-cmake",

@@ -8,7 +8,10 @@ vcpkg_from_github(
       fix_glog_CMAKE_MODULE_PATH.patch
       glog_disable_debug_postfix.patch
       fix_crosscompile_symbolize.patch
+      devendor-dirent.patch
 )
+
+file(REMOVE "${SOURCE_PATH}/src/windows/dirent.h")
 
 vcpkg_check_features(
     OUT_FEATURE_OPTIONS FEATURE_OPTIONS

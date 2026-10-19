@@ -1,0 +1,17 @@
+diff --git a/src/logging.cc b/src/logging.cc
+index fc63995..85e9239 100644
+--- a/src/logging.cc
++++ b/src/logging.cc
+@@ -53,11 +53,7 @@
+ #include "stacktrace.h"
+ #include "utilities.h"
+ 
+-#ifdef GLOG_OS_WINDOWS
+-#  include "windows/dirent.h"
+-#else
+-#  include <dirent.h>  // for automatic removal of old logs
+-#endif
++#include <dirent.h>  // for automatic removal of old logs
+ 
+ #include <fcntl.h>
+ #include <sys/stat.h>
