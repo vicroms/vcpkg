@@ -41,9 +41,6 @@ if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
 endif()
 
-# Install custom usage
-configure_file("${CMAKE_CURRENT_LIST_DIR}/usage" "${CURRENT_PACKAGES_DIR}/share/${PORT}/usage" @ONLY)
-
 vcpkg_install_copyright(FILE_LIST
     "${SOURCE_PATH}/LICENSE.TXT"
     "${SOURCE_PATH}/ql/math/optimization/lmdif.cpp"
