@@ -80,6 +80,10 @@ endif()
 vcpkg_cmake_config_fixup(PACKAGE_NAME sentry CONFIG_PATH lib/cmake/sentry)
 
 if(EXISTS "${CURRENT_PACKAGES_DIR}/bin/crashpad_handler${VCPKG_TARGET_EXECUTABLE_SUFFIX}")
+    if("wer" IN_LIST FEATURES)
+        file(COPY "${CURRENT_PACKAGES_DIR}/bin/crashpad_wer.dll"
+            DESTINATION "${CURRENT_PACKAGES_DIR}/tools/${PORT}")
+    endif()
     vcpkg_copy_tools(TOOL_NAMES crashpad_handler AUTO_CLEAN)
 endif()
 
