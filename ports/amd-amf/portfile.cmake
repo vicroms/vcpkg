@@ -19,4 +19,14 @@ vcpkg_download_distfile(LICENSE_FILE
 
 # Install the AMF headers to the default vcpkg location
 file(INSTALL "${SOURCE_PATH}/AMF/" DESTINATION "${CURRENT_PACKAGES_DIR}/include/AMF")
+foreach(header IN ITEMS Ambisonic2SRenderer ChromaKey VideoStitch)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/AMF/components/${header}.h"
+        "public/include/components/Component.h" "Component.h")
+endforeach()
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/AMF/components/Capture.h"
+    "../../../public/include/components/Component.h" "Component.h")
+foreach(header IN ITEMS MediaSource SupportedCodecs)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/AMF/components/${header}.h"
+        "public/include/core/Interface.h" "../core/Interface.h")
+endforeach()
 vcpkg_install_copyright(FILE_LIST "${LICENSE_FILE}")
