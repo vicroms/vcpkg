@@ -1,5 +1,19 @@
+diff --git a/cmake/modules/vvencCompilerSupport.cmake b/cmake/modules/vvencCompilerSupport.cmake
+index 7e48458..952eb89 100644
+--- a/cmake/modules/vvencCompilerSupport.cmake
++++ b/cmake/modules/vvencCompilerSupport.cmake
+@@ -52,7 +52,8 @@ endfunction()
+ 
+ function( _check_intrinsic symbol_name compiler_flags code )
+   set( CMAKE_REQUIRED_FLAGS       "${CMAKE_REQUIRED_FLAGS} ${compiler_flags}")
+-  set( CMAKE_REQUIRED_INCLUDES    "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/" )
++  find_path( SIMDE_INCLUDE_DIRS "simde/arm/neon.h" )
++  set( CMAKE_REQUIRED_INCLUDES    "${SIMDE_INCLUDE_DIRS}" )
+ 
+   check_c_source_compiles("
+     #include <simde/simde-arch.h>
 diff --git a/source/Lib/vvenc/CMakeLists.txt b/source/Lib/vvenc/CMakeLists.txt
-index 621bb27..2b667da 100644
+index 5a8f4a0..3d954e7 100644
 --- a/source/Lib/vvenc/CMakeLists.txt
 +++ b/source/Lib/vvenc/CMakeLists.txt
 @@ -80,7 +80,8 @@ add_compile_definitions( ${LIB_NAME_UC}_SOURCE )
