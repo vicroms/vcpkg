@@ -6,6 +6,8 @@ vcpkg_from_github(
     REF 504e7d4765adc718957cb32cf7699d9e9272c727
     SHA512 5167e68830f5711f1d05874c4d10b582f5472438613a6ef4865345a47948388c31d95f11ed04502072eadefc75e7ea5cf1459bbdf1e460854dcb64d905834231
     HEAD_REF master
+    PATCHES
+        fix-header-layout.patch
 )
 
 # CMake helper functions the build uses; pinned to the deps/c-build-tools submodule.
@@ -60,8 +62,8 @@ install(TARGETS c_logging_v2 c_logging_v2_core EXPORT c_loggingTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/c_logging/v2/c_logging
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/c_logging/v2)
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/c_logging
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT c_loggingTargets FILE c_loggingTargets.cmake DESTINATION share/c_logging)
 ]=])
 

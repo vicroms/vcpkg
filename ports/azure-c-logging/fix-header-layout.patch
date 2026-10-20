@@ -1,0 +1,13 @@
+diff --git a/v2/CMakeLists.txt b/v2/CMakeLists.txt
+index ce434d9..aab9803 100644
+--- a/v2/CMakeLists.txt
++++ b/v2/CMakeLists.txt
+@@ -145,7 +145,7 @@ target_link_libraries(c_logging_v2 macro_utils_c)
+ 
+ target_link_libraries(c_logging_v2 c_logging_v2_core)
+ 
+-install_library_with_prefix(c_logging_v2 c_logging/v2/c_logging ${c_logging_v2_h_files})
++install_library_with_prefix(c_logging_v2 c_logging ${c_logging_v2_h_files})
+ 
+ if((CMAKE_GENERATOR MATCHES "Visual Studio") AND (${run_traceability}))
+     #add traceability custom target
