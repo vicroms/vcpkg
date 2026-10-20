@@ -26,5 +26,6 @@ file(REMOVE_RECURSE
 
 vcpkg_install_copyright(FILE_LIST
     "${SOURCE_PATH}/LICENSE"
+    "${SOURCE_PATH}/LICENSE.optional-lite"
     "${SOURCE_PATH}/LICENSE.termcolor"
 )
