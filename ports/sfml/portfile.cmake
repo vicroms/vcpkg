@@ -9,6 +9,7 @@ vcpkg_from_github(OUT_SOURCE_PATH SOURCE_PATH
         04-use-vcpkg-dependencies.patch
         05-fix-pkgconfig-files.patch
         06-isolate-dr-mp3.patch
+        07-use-system-miniaudio.patch
 )
 
 if(VCPKG_TARGET_IS_LINUX)

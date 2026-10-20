@@ -1,0 +1,25 @@
+diff --git a/src/SFML/Audio/CMakeLists.txt b/src/SFML/Audio/CMakeLists.txt
+index b249451..bf8d9c7 100644
+--- a/src/SFML/Audio/CMakeLists.txt
++++ b/src/SFML/Audio/CMakeLists.txt
+@@ -214,7 +214,8 @@ if(SFML_OS_IOS)
+ endif()
+ 
+ # miniaudio sources
+-target_include_directories(sfml-audio SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/extlibs/headers/miniaudio")
++find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h REQUIRED)
++target_include_directories(sfml-audio SYSTEM PRIVATE "${MINIAUDIO_INCLUDE_DIR}")
+ 
+ # dr_mp3 sources
+ find_path(DR_MP3_INCLUDE_DIR dr_mp3.h REQUIRED)
+diff --git a/src/SFML/Audio/Miniaudio.cpp b/src/SFML/Audio/Miniaudio.cpp
+index 0d4ea08..c07596c 100644
+--- a/src/SFML/Audio/Miniaudio.cpp
++++ b/src/SFML/Audio/Miniaudio.cpp
+@@ -29,4 +29,5 @@
+ #pragma GCC diagnostic ignored "-Wnull-dereference" // Work around MinGW warning
+ #endif
+ // #define MA_DEBUG_OUTPUT // Uncomment to enable miniaudio debug output to console
+-#include <miniaudio.c> // NOLINT(bugprone-suspicious-include)
++#define MINIAUDIO_IMPLEMENTATION
++#include <miniaudio.h>
