@@ -4,7 +4,7 @@
   "description": "Logging library used by the Azure C SDKs (azure-c-shared-utility, umock-c)",
   "homepage": "https://github.com/Azure/c-logging",
   "license": "MIT",
-  "supports": "!uwp",
+  "supports": "!uwp & !mingw",
   "dependencies": [
     "azure-macro-utils-c",
     {
