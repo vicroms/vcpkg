@@ -15,15 +15,6 @@
       "host": true
     }
   ],
-  "default-features": [
-    "entt",
-    "osgqopengl",
-    "simdata",
-    "simqt",
-    "simutil",
-    "simvis",
-    "wbp"
-  ],
   "features": {
     "entt": {
       "description": "Enable EnTT support in simData for optimized performance",
