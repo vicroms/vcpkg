@@ -689,7 +689,8 @@ if (VCPKG_TARGET_IS_IOS)
                             ${VCPKG_OSX_DEPLOYMENT_TARGET}")
     endif ()
 
-    if (VCPKG_OSX_SYSROOT STREQUAL "iphonesimulator")
+    if (VCPKG_OSX_SYSROOT STREQUAL "iphonesimulator" OR
+        (NOT VCPKG_OSX_SYSROOT AND VCPKG_TARGET_ARCHITECTURE STREQUAL "x64"))
         set(simulator "-simulator")
     endif ()
 
