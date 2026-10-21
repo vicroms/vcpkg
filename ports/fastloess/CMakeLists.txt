@@ -91,18 +91,18 @@ endif()
 
 set(FASTLOESS_MACOS_RPATH_PREFIX "@rpath/")
 configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/fastloessConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/fastloessConfig.cmake"
-    INSTALL_DESTINATION share/fastloess
+    "${CMAKE_CURRENT_SOURCE_DIR}/unofficial-fastloessConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/unofficial-fastloessConfig.cmake"
+    INSTALL_DESTINATION share/unofficial-fastloess
 )
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/fastloessConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/unofficial-fastloessConfigVersion.cmake"
     VERSION "${PROJECT_VERSION}"
     COMPATIBILITY SameMajorVersion
 )
 install(
     FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/fastloessConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/fastloessConfigVersion.cmake"
-    DESTINATION share/fastloess
+        "${CMAKE_CURRENT_BINARY_DIR}/unofficial-fastloessConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/unofficial-fastloessConfigVersion.cmake"
+    DESTINATION share/unofficial-fastloess
 )
