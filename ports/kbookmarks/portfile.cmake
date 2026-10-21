@@ -32,4 +32,10 @@ file(REMOVE_RECURSE
 )
 
 file(GLOB LICENSE_FILES "${SOURCE_PATH}/LICENSES/*")
-vcpkg_install_copyright(FILE_LIST ${LICENSE_FILES})
+vcpkg_install_copyright(
+    FILE_LIST
+        ${LICENSE_FILES}
+        "${CURRENT_INSTALLED_DIR}/share/ECM/modules/ECMQmLoader.cpp.in"
+        "${CURRENT_INSTALLED_DIR}/share/ecm/copyright"
+    COMMENT "Includes the BSD-3-Clause ECMQmLoader template compiled into both libraries."
+)

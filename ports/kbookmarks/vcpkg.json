@@ -4,7 +4,7 @@
   "description": "Bookmarks management library",
   "homepage": "https://invent.kde.org/frameworks/kbookmarks",
   "documentation": "https://api.kde.org/kbookmarks-index.html",
-  "license": "LGPL-2.0-only AND LGPL-2.0-or-later",
+  "license": "BSD-3-Clause AND LGPL-2.0-only AND LGPL-2.0-or-later",
   "dependencies": [
     "ecm",
     "kconfig",
