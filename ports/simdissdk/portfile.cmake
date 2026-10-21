@@ -42,8 +42,8 @@ vcpkg_cmake_configure(
         -DSIMQT_SHARED=${_SDK_SHARED}
         -DPROJECT_INSTALL_OSGPLUGINS_DIR=plugins
     MAYBE_UNUSED_VARIABLES
-        ENABLE_QTDESIGNER_WIDGETS
-        VCPKG_LOCK_FIND_PACKAGE_EnTT
+        ENABLE_QTDESIGNER_WIDGETS # Applies when Qt is found.
+        VCPKG_LOCK_FIND_PACKAGE_EnTT # Applies when simData is built.
 )
 
 vcpkg_cmake_install()

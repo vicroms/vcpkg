@@ -18,7 +18,7 @@ vcpkg_cmake_configure(
         -DOSG_MSVC_VERSIONED_DLL=OFF
         -DDYNAMIC_OPENSCENEGRAPH=${_DYNAMIC_OSGQOPENGL}
     MAYBE_UNUSED_VARIABLES
-        OSG_MSVC_VERSIONED_DLL
+        OSG_MSVC_VERSIONED_DLL # Applies to MSVC builds.
 )
 
 vcpkg_cmake_install()
