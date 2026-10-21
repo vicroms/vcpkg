@@ -6,6 +6,9 @@ vcpkg_from_github(
     REF "v${VERSION}"
     SHA512 141f697b347c9bfc41a1834b51893b04a31cc880d4333dcaa7679cb9c538bc46aa8c6befea11f29041a92a237147a7b07c82d75ff059ebaaa7e7c76c6a7449de
     HEAD_REF master
+    PATCHES
+        # https://github.com/Vins-z/Backtesting-Engine/commit/db38f0beb22fd094ee8d5c69e2e2b02f2557d9c0
+        supported-interfaces.patch
 )
 
 set(PROJECT_SUBDIR "${SOURCE_PATH}/cpp-backtesting-engine")
