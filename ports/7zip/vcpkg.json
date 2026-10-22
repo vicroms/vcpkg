@@ -3,7 +3,7 @@
   "version": "26.5",
   "description": "Library for archiving file with a high compression ratio.",
   "homepage": "https://www.7-zip.org",
-  "license": "LGPL-2.1-or-later",
+  "license": null,
   "supports": "!uwp & !xbox",
   "dependencies": [
     {
