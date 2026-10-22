@@ -1,0 +1,20 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 59dad07..90de539 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -121,8 +121,13 @@ set_target_properties( nanodbc PROPERTIES
+   CXX_EXTENSIONS OFF
+ )
+ 
+-find_package( ODBC REQUIRED )
+-target_link_libraries( nanodbc PUBLIC ODBC::ODBC )
++if( WIN32 )
++  find_package( ODBC REQUIRED )
++  target_link_libraries( nanodbc PUBLIC ODBC::ODBC )
++else()
++  find_package( unofficial-unixodbc CONFIG REQUIRED )
++  target_link_libraries( nanodbc PUBLIC unofficial::unixodbc::unixodbc )
++endif()
+ 
+ if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" )
+   target_compile_options( nanodbc PRIVATE

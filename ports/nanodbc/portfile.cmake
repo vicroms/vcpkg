@@ -8,6 +8,8 @@ vcpkg_from_github(
     REF f212bcb6ce61029e96cc18b98a4cc05198749ada # v2.20.0
     SHA512 4a3c27b31a03db90b6b7cbe21adbc9ee519af43c9bce78aba2d9fe624eea1c689fffa71b791b3c0bc0a77a7f70d2f0ba2f2c685235f01498f88a189956fc9722
     HEAD_REF master
+    PATCHES
+        find-unixodbc.patch
 )
 
 if(DEFINED NANODBC_ODBC_VERSION)
