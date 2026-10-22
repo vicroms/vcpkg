@@ -40,7 +40,35 @@ vcpkg_configure_make(
 
 vcpkg_install_make()
 vcpkg_fixup_pkgconfig()
-vcpkg_copy_tool_dependencies("${CURRENT_PACKAGES_DIR}/tools/${PORT}/bin")
+if(VCPKG_TARGET_IS_WINDOWS)
+    foreach(tool_subdir IN ITEMS bin debug/bin)
+        set(tool_dir "${CURRENT_PACKAGES_DIR}/tools/${PORT}/${tool_subdir}")
+        if(IS_DIRECTORY "${tool_dir}")
+            set(tool_names
+                hwloc-annotate
+                hwloc-bind
+                hwloc-calc
+                hwloc-diff
+                hwloc-distrib
+                hwloc-info
+                hwloc-ls
+                hwloc-patch
+                lstopo
+                lstopo-no-graphics
+            )
+            foreach(optional_tool IN ITEMS hwloc-gather-cpuid lstopo-win)
+                if(EXISTS "${tool_dir}/${optional_tool}${VCPKG_TARGET_EXECUTABLE_SUFFIX}")
+                    list(APPEND tool_names "${optional_tool}")
+                endif()
+            endforeach()
+            vcpkg_copy_tools(
+                TOOL_NAMES ${tool_names}
+                SEARCH_DIR "${tool_dir}"
+                DESTINATION "${tool_dir}"
+            )
+        endif()
+    endforeach()
+endif()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
