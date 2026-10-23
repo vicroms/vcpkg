@@ -1,0 +1,12 @@
+diff --git a/include/rest_rpc/string_view.hpp b/include/rest_rpc/string_view.hpp
+index b204695..6f4297b 100644
+--- a/include/rest_rpc/string_view.hpp
++++ b/include/rest_rpc/string_view.hpp
+@@ -108,6 +108,7 @@
+ 
+ #if nssv_USES_STD_STRING_VIEW
+ 
++#include <string>
+ #include <string_view>
+ 
+ // Extensions for std::string:
