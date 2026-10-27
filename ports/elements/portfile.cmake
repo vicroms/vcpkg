@@ -36,29 +36,15 @@ if(NOT EXISTS "${SOURCE_PATH}/lib/artist/lib/infra/CMakeLists.txt")
     file(RENAME "${INFRA_SOURCE_PATH}" "${SOURCE_PATH}/lib/artist/lib/infra")
 endif()
 
-vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
-    FEATURES
-        cairo      ELEMENTS_CAIRO
-)
-
 if(VCPKG_TARGET_IS_WINDOWS)
     set(ELEMENTS_HOST_UI_LIBRARY "win32")
+    set(ARTIST_BACKEND "DIRECT2D")
 elseif(VCPKG_TARGET_IS_OSX)
     set(ELEMENTS_HOST_UI_LIBRARY "cocoa")
+    set(ARTIST_BACKEND "QUARTZ_2D")
 else()
     set(ELEMENTS_HOST_UI_LIBRARY "gtk")
-endif()
-
-if("cairo" IN_LIST FEATURES)
     set(ARTIST_BACKEND "CAIRO")
-else()
-    if(VCPKG_TARGET_IS_WINDOWS)
-        set(ARTIST_BACKEND "DIRECT2D")
-    elseif(VCPKG_TARGET_IS_OSX)
-        set(ARTIST_BACKEND "QUARTZ_2D")
-    else()
-        set(ARTIST_BACKEND "CAIRO")
-    endif()
 endif()
 
 vcpkg_find_acquire_program(PKGCONFIG)
@@ -68,10 +54,10 @@ vcpkg_cmake_configure(
     OPTIONS
         -DELEMENTS_BUILD_EXAMPLES=OFF
         -DELEMENTS_HOST_UI_LIBRARY=${ELEMENTS_HOST_UI_LIBRARY}
-        ${FEATURE_OPTIONS}
+        -DELEMENTS_${ARTIST_BACKEND}=ON
         "-DPKG_CONFIG_EXECUTABLE=${PKGCONFIG}"
     MAYBE_UNUSED_VARIABLES
-        PKG_CONFIG_EXECUTABLE
+        PKG_CONFIG_EXECUTABLE # Used for GTK/Cairo discovery, not native Win32/Quartz.
 )
 
 vcpkg_cmake_build()
