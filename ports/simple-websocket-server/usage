@@ -3,13 +3,21 @@ The package simple-websocket-server is header-only and can be used from CMake vi
 find_path(
     SIMPLE_WEBSOCKET_SERVER_INCLUDE_DIRS
     "simple-websocket-server/server_ws.hpp"
+    REQUIRED
 )
+
+find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
 
 target_include_directories(main PRIVATE
     ${SIMPLE_WEBSOCKET_SERVER_INCLUDE_DIRS}
 )
 
-target_compile_definitions(main PRIVATE ASIO_STANDALONE)
+target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto Threads::Threads)
 
-This port uses standalone Asio. ASIO_STANDALONE is the public header-selection
-macro; it is distinct from the upstream CMake option USE_STANDALONE_ASIO.
+if(WIN32)
+    target_link_libraries(main PRIVATE ws2_32 crypt32)
+endif()
+
+This port always uses standalone Asio, including for direct header inclusion.
+No consumer backend-selection compile definition is needed.

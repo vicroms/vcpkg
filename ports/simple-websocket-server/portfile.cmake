@@ -10,6 +10,26 @@ vcpkg_from_github(
     SHA512 bf66f797f7e00d89a42ad5ffb53d9e3c91695479739f8617c5d29d716eaa803321f153fb4cbd2644470ac69858f8f09f727a988631acab05d4956fe5c1ba39ed
 )
 
+# Fix the registry-wide backend without requiring consumer compile definitions.
+foreach(header IN ITEMS asio_compatibility.hpp client_wss.hpp server_wss.hpp)
+    vcpkg_replace_string("${SOURCE_PATH}/${header}" "#ifdef ASIO_STANDALONE" "#if 1")
+    vcpkg_replace_string("${SOURCE_PATH}/${header}"
+        "(defined(ASIO_STANDALONE) && ASIO_VERSION >= 101300) || BOOST_ASIO_VERSION >= 101300"
+        "ASIO_VERSION >= 101300"
+    )
+endforeach()
+foreach(header IN ITEMS asio_compatibility.hpp client_wss.hpp)
+    vcpkg_replace_string("${SOURCE_PATH}/${header}"
+        "(defined(ASIO_STANDALONE) && ASIO_VERSION >= 103300) || BOOST_ASIO_VERSION >= 103300"
+        "ASIO_VERSION >= 103300"
+    )
+endforeach()
+vcpkg_replace_string("${SOURCE_PATH}/asio_compatibility.hpp"
+    "(defined(ASIO_STANDALONE) && ASIO_VERSION >= 101800) || BOOST_ASIO_VERSION >= 101800"
+    "ASIO_VERSION >= 101800"
+)
+vcpkg_replace_string("${SOURCE_PATH}/utility.hpp" "#elif !defined(ASIO_STANDALONE)" "#elif 0")
+
 file(COPY
     "${SOURCE_PATH}/asio_compatibility.hpp"
     "${SOURCE_PATH}/client_ws.hpp"
