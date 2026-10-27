@@ -7,6 +7,9 @@
   "supports": "!uwp & !xbox",
   "dependencies": [
     "vulkan",
-    "vulkan-memory-allocator"
+    {
+      "name": "vulkan-memory-allocator",
+      "version>=": "3.5.0"
+    }
   ]
 }
