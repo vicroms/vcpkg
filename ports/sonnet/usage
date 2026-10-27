@@ -1,0 +1,41 @@
+Sonnet provides CMake targets:
+
+    find_package(KF6Sonnet CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE KF6::SonnetUi KF6::SonnetCore)
+
+Runtime setup is also required for spellchecking backends. Before the first
+Sonnet use, register the directory containing kf6/sonnet with Qt:
+
+    QCoreApplication app(argc, argv);
+    QCoreApplication::addLibraryPath(pluginRoot);
+
+For development, pluginRoot is <installed>/<triplet>/plugins for Release or
+<installed>/<triplet>/debug/plugins for Debug. QT_PLUGIN_PATH can alternatively
+contain that directory. Do not mix Release and Debug plugins or rely on files
+remaining in vcpkg's packages directory.
+
+For deployment, copy the contents of the matching plugins/kf6/sonnet directory
+to <application-dir>/plugins/kf6/sonnet, deploy the matching Sonnet, Qt and
+backend runtime dependencies, and register an executable-relative path:
+
+    QCoreApplication::addLibraryPath(
+        QCoreApplication::applicationDirPath() + QStringLiteral("/plugins"));
+
+Do this after constructing the application and before constructing any Sonnet
+objects. CMake target linking and vcpkg's app-local DLL copying alone do not
+deploy these dynamically loaded backends. Check Sonnet::Speller::isValid() and
+availableBackends()/availableLanguages() to diagnose missing backends or
+dictionaries. Windows/macOS native backends need OS dictionaries; Hunspell
+needs separately provisioned dictionaries.
+
+With the qml feature, also add <installed>/<triplet>/qml (Release) or
+<installed>/<triplet>/debug/qml (Debug) to QQmlEngine::addImportPath before
+loading QML that imports org.kde.sonnet. For deployment, copy that module's
+org/kde/sonnet directory and its runtime dependencies under
+<application-dir>/qml/org/kde/sonnet, then use:
+
+    engine.addImportPath(
+        QCoreApplication::applicationDirPath() + QStringLiteral("/qml"));
+
+Deploy the module's Qt Quick dependencies as well. QML import configuration
+does not replace the backend plugin registration above.
