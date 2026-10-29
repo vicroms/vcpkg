@@ -1,0 +1,19 @@
+diff --git a/KF6PackageConfig.cmake.in b/KF6PackageConfig.cmake.in
+index 1760dc3..d2b7fff 100644
+--- a/KF6PackageConfig.cmake.in
++++ b/KF6PackageConfig.cmake.in
+@@ -18,6 +18,14 @@ set(Package_LIBRARIES KF6::Package)
+ include(CMakeFindDependencyMacro)
+ find_dependency(KF6CoreAddons "@KF_DEP_VERSION@")
+ 
++if(NOT @BUILD_SHARED_LIBS@)
++    find_dependency(KF6Archive "@KF_DEP_VERSION@")
++    find_dependency(KF6I18n "@KF_DEP_VERSION@")
++    if(@USE_DBUS@)
++        find_dependency(Qt6 "@REQUIRED_QT_VERSION@" COMPONENTS DBus)
++    endif()
++endif()
++
+ @PACKAGE_SETUP_AUTOMOC_VARIABLES@
+ 
+ include("${CMAKE_CURRENT_LIST_DIR}/KF6PackageMacros.cmake")

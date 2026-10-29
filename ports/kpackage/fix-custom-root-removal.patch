@@ -1,0 +1,21 @@
+diff --git a/src/kpackagetool/kpackagetool.cpp b/src/kpackagetool/kpackagetool.cpp
+index d48be29..6b0b6af 100644
+--- a/src/kpackagetool/kpackagetool.cpp
++++ b/src/kpackagetool/kpackagetool.cpp
+@@ -152,6 +152,7 @@ void PackageTool::runMain()
+         if (d->parser->isSet(Options::remove()) || d->parser->isSet(Options::upgrade())) {
+             QString pkgPath;
+             KPackage::Package pkg = KPackage::PackageLoader::self()->loadPackage(d->kpackageType);
++            pkg.setDefaultPackageRoot(d->packageRoot);
+             pkg.setPath(d->package);
+             if (pkg.isValid()) {
+                 pkgPath = pkg.path();
+@@ -185,7 +186,7 @@ void PackageTool::runMain()
+                     pluginName = d->metadata.pluginId();
+                 }
+             }
+-            QStringList installed = d->packages(d->kpackageType);
++            QStringList installed = d->packages(d->kpackageType, d->packageRoot);
+ 
+             // Uninstalling ...
+             if (installed.contains(pluginName)) { // Assume it's a plugin id

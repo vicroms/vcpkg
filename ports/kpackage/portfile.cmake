@@ -6,6 +6,8 @@ vcpkg_from_github(
     HEAD_REF master
     PATCHES
         remove-stale-static-install.patch
+        fix-static-dependencies.patch
+        fix-custom-root-removal.patch
 )
 
 # Prevent KDEClangFormat from writing to source effectively blocking parallel configure
