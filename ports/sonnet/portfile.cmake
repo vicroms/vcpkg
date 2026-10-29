@@ -54,6 +54,7 @@ vcpkg_cmake_configure(
         -DKDE_INSTALL_QMLDIR=qml
         ${FEATURE_OPTIONS}
     MAYBE_UNUSED_VARIABLES
+        # Allows backend-free builds without Hunspell on non-Windows/non-macOS targets, including host tools.
         SONNET_NO_BACKENDS
 )
 
