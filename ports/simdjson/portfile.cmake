@@ -9,14 +9,6 @@ vcpkg_from_github(
 
 file(REMOVE "${SOURCE_PATH}/include/simdjson/internal/fast_float.h")
 
-# The installed amalgamated header must use the external dependency too.
-vcpkg_find_acquire_program(PYTHON3)
-vcpkg_execute_required_process(
-    COMMAND "${PYTHON3}" "${SOURCE_PATH}/singleheader/amalgamate.py" --quiet
-    WORKING_DIRECTORY "${SOURCE_PATH}"
-    LOGNAME amalgamate
-)
-
 vcpkg_check_features(
     OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES

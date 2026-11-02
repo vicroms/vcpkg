@@ -5,10 +5,7 @@
   "homepage": "https://simdjson.org",
   "license": "(Apache-2.0 OR MIT) AND BSL-1.0 AND BSD-3-Clause",
   "dependencies": [
-    {
-      "name": "fast-float",
-      "version>=": "8.2.10"
-    },
+    "fast-float",
     {
       "name": "vcpkg-cmake",
       "host": true
