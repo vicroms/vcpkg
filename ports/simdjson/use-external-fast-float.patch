@@ -1,0 +1,117 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9a3f6fa..0c687a4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -41,6 +41,8 @@ endif()
+ option(SIMDJSON_ENABLE_THREADS "Link with thread support" ON)
+ 
+ include(cmake/simdjson-props.cmake)
++find_package(FastFloat CONFIG REQUIRED)
++simdjson_add_props(target_link_libraries PUBLIC FastFloat::fast_float)
+ include(cmake/implementation-flags.cmake)
+ include(cmake/exception-flags.cmake)
+ 
+diff --git a/cmake/simdjson-config.cmake.in b/cmake/simdjson-config.cmake.in
+index 6720e99..9430de4 100644
+--- a/cmake/simdjson-config.cmake.in
++++ b/cmake/simdjson-config.cmake.in
+@@ -1,4 +1,5 @@
+ include(CMakeFindDependencyMacro)
++find_dependency(FastFloat CONFIG)
+ if("@SIMDJSON_ENABLE_THREADS@")
+   find_dependency(Threads)
+ endif()
+diff --git a/include/simdjson/compile_time_json-inl.h b/include/simdjson/compile_time_json-inl.h
+index d8f4637..79c5df7 100644
+--- a/include/simdjson/compile_time_json-inl.h
++++ b/include/simdjson/compile_time_json-inl.h
+@@ -12,7 +12,7 @@
+ #if SIMDJSON_STATIC_REFLECTION
+ 
+ #include "simdjson/compile_time_json.h"
+-#include "simdjson/internal/fast_float.h"
++#include <fast_float/fast_float.h>
+ #include <algorithm>
+ #include <array>
+ #include <charconv>
+@@ -53,10 +53,10 @@ namespace number_parsing {
+ consteval std::pair<double, size_t> parse_double(const char *src,
+                                                  const char *end) {
+   double value = 0;
+-  auto answer = simdjson_fast_float::from_chars_advanced(
++  auto answer = fast_float::from_chars_advanced(
+       src, end, value,
+-      simdjson_fast_float::parse_options{
+-          simdjson_fast_float::chars_format::json});
++      fast_float::parse_options{
++          fast_float::chars_format::json});
+   if (answer.ec == std::errc::invalid_argument) {
+     simdjson_consteval_error("Invalid float value");
+   }
+diff --git a/singleheader/amalgamate.py b/singleheader/amalgamate.py
+index f18d66e..a1e0b5b 100644
+--- a/singleheader/amalgamate.py
++++ b/singleheader/amalgamate.py
+@@ -456,7 +456,7 @@ class SimdjsonRepository:
+         assert root in self.relative_roots, f"Error: Root '{root}' is not a valid relative root. Valid roots are {self.relative_roots}. Check the root parameter passed to validate_all_files_used."
+         absolute_root = os.path.join(self.project_path, root)
+         all_files = set([
+-            os.path.relpath(os.path.join(dir, file).replace('\\', '/'), absolute_root)
++            os.path.relpath(os.path.join(dir, file), absolute_root).replace('\\', '/')
+             for dir, _, files in os.walk(absolute_root)
+             for file in files
+             if file.endswith('.h') or file.endswith('.cpp')
+@@ -777,8 +777,8 @@ create_zip()
+ log("Done with all files generation.")
+ 
+ log(f"Files have been written to directory: {AMALGAMATE_OUTPUT_PATH}/")
+-log(subprocess.run(['ls', '-la', AMAL_C, AMAL_H, DEMOCPP, README],
+-                   stdout=subprocess.PIPE).stdout.decode('utf-8').strip())
++for filename in [AMAL_C, AMAL_H, DEMOCPP, README]:
++    log(f"{filename}: {os.path.getsize(filename)} bytes")
+ log("Done with all files generation.")
+ 
+ 
+diff --git a/src/from_chars.cpp b/src/from_chars.cpp
+index b67870c..e2ecda5 100644
+--- a/src/from_chars.cpp
++++ b/src/from_chars.cpp
+@@ -3,7 +3,7 @@
+ 
+ #include <base.h>
+ 
+-#include "simdjson/internal/fast_float.h"
++#include <fast_float/fast_float.h>
+ 
+ #include <cstdint>
+ #include <cstring>
+@@ -20,8 +20,7 @@ namespace internal {
+  * round. That should only be seen in adversarial scenarios; we do not expect
+  * production systems to even produce such floating-point numbers.
+  *
+- * The work is handed to fast_float (vendored in
+- * include/simdjson/internal/fast_float.h), which settles the rounding by
++ * The work is handed to fast_float, which settles the rounding by
+  * comparing a bigint against a scaled power of five. It is correctly rounded,
+  * and quick enough that an adversarial document is no longer worth worrying
+  * about.
+@@ -47,8 +46,8 @@ const char *find_end_of_number(const char *first) noexcept {
+ // The input is JSON, so parse it under the JSON grammar: no hexadecimal, no
+ // leading plus, and no infinity or NaN spellings. Those are handled (or
+ // rejected) before we ever get here.
+-constexpr simdjson_fast_float::parse_options json_options{
+-    simdjson_fast_float::chars_format::json};
++constexpr fast_float::parse_options json_options{
++    fast_float::chars_format::json};
+ 
+ // fast_float reports result_out_of_range for a value at either edge of the
+ // format, writing +/-0 when it underflows and +/-infinity when it overflows.
+@@ -59,7 +58,7 @@ constexpr simdjson_fast_float::parse_options json_options{
+ template <typename T> T parse_with_fast_float(const char *first, const char *end) noexcept {
+   T value{};
+   auto answer =
+-      simdjson_fast_float::from_chars_advanced(first, end, value, json_options);
++      fast_float::from_chars_advanced(first, end, value, json_options);
+   if (answer.ec == std::errc::invalid_argument) { return T(0); }
+   return value;
+ }
