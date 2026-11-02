@@ -5,6 +5,7 @@ vcpkg_from_github(
     SHA512 0a62a1d263437409cf50e20da7f82132cc3df9a7ecf9e1d57ac00285199617b168636e4a042cd564fcb1b8417883e618238ca252066b9e6e77c4c9030026ff30
     PATCHES
         fix-win32-build.patch
+        vcpkg-runtime-paths.patch
 )
 
 # Acquire Perl and add it to PATH (for execution of Configure)
@@ -116,4 +117,18 @@ else()
     endif()
 endif()
 
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING")
+file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
+
+set(copyright_files
+    "${SOURCE_PATH}/COPYING"
+    "${SOURCE_PATH}/snmplib/getopt.c"
+    "${SOURCE_PATH}/snmplib/strlcat.c"
+    "${SOURCE_PATH}/snmplib/strtok_r.c"
+    "${SOURCE_PATH}/snmplib/inet_ntop.c"
+    "${SOURCE_PATH}/snmplib/inet_pton.c"
+    "${SOURCE_PATH}/snmplib/md5.c"
+)
+if("tools" IN_LIST FEATURES)
+    list(APPEND copyright_files "${SOURCE_PATH}/apps/snmpnetstat/main.c")
+endif()
+vcpkg_install_copyright(FILE_LIST ${copyright_files})

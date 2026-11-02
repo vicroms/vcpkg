@@ -1,0 +1,24 @@
+Net-SNMP provides native Windows libraries; link netsnmp and the required
+agent libraries from lib (Release) or debug/lib (Debug).
+
+Runtime data:
+  Keep share/snmp with the deployed application. Net-SNMP searches for
+  share/snmp/mibs beside its DLL (or executable for static linkage), then
+  one and two directories above it. This supports vcpkg's bin, debug/bin,
+  and tools/net-snmp layouts without depending on the working directory.
+  Custom layouts can use netsnmp_set_mib_directory() before init_mib(), or
+  the upstream MIBDIRS setting. Configuration defaults follow the same root.
+
+Writable state:
+  Persistent state defaults to %LOCALAPPDATA%/net-snmp/persist, separately
+  from the installation. LOCALAPPDATA must be an absolute drive-letter path.
+  Services and applications needing separate state should set
+  SNMP_PERSISTENT_DIR to their own absolute writable directory, or call
+  netsnmp_ds_set_string(NETSNMP_DS_LIBRARY_ID, NETSNMP_DS_LIB_PERSISTENT_DIR,
+                        absolute_path) before init_snmp().
+  Use SNMPCONFPATH or the NETSNMP_DS_LIB_CONFIGURATION_DIR string setting
+  for application-specific configuration.
+  Temporary files use the Windows temporary directory.
+
+C++ consumers of this upstream version must include standard C++ headers
+before Net-SNMP headers, which define the inline keyword as a macro.

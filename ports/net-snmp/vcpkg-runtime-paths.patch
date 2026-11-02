@@ -1,0 +1,184 @@
+diff --git a/snmplib/system.c b/snmplib/system.c
+index 826196f..0ce257c 100644
+--- a/snmplib/system.c
++++ b/snmplib/system.c
+@@ -202,6 +202,109 @@ SOFTWARE.
+ /* NetSNMP and DNSSEC-Tools both define FREE. We'll not use either here. */
+ #undef FREE
+ 
++#ifdef WIN32
++/* vcpkg data follows the module, not the caller's working directory.
++ * Writable state deliberately does not follow the installation. */
++static INIT_ONCE vcpkg_paths_once = INIT_ONCE_STATIC_INIT;
++static INIT_ONCE vcpkg_state_once = INIT_ONCE_STATIC_INIT;
++static char vcpkg_paths[8][MAX_PATH];
++
++static BOOL CALLBACK
++vcpkg_init_paths(PINIT_ONCE once, PVOID parameter, PVOID *context)
++{
++    HMODULE module;
++    char filename[MAX_PATH], candidate[MAX_PATH], *slash;
++    const char *layouts[] = {"", "/..", "/../.."};
++    const char *suffixes[] = {
++        "", "/share/snmp/mibs", "", "/lib", "/share/snmp",
++        "/etc/snmp", "/lib/dlmod"
++    };
++    DWORD length, attributes;
++    size_t i;
++    int written;
++
++    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
++                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
++                           (LPCSTR)&vcpkg_paths, &module))
++        return FALSE;
++    length = GetModuleFileNameA(module, filename, sizeof(filename));
++    if (!length || length >= sizeof(filename))
++        return FALSE;
++    slash = strrchr(filename, '\\');
++    if (!slash)
++        return FALSE;
++    *slash = '\0';
++
++    /* Application-local deployment, bin, debug/bin, and tools/net-snmp. */
++    for (i = 0; i < sizeof(layouts) / sizeof(layouts[0]); ++i) {
++        written = snprintf(candidate, sizeof(candidate), "%s%s/share/snmp/mibs",
++                           filename, layouts[i]);
++        if (written < 0 || written >= sizeof(candidate))
++            return FALSE;
++        attributes = GetFileAttributesA(candidate);
++        if (attributes != INVALID_FILE_ATTRIBUTES &&
++            (attributes & FILE_ATTRIBUTE_DIRECTORY))
++            break;
++    }
++    if (i == sizeof(layouts) / sizeof(layouts[0]))
++        i = 0; /* The MIB reader diagnoses missing application-local data. */
++    written = snprintf(candidate, sizeof(candidate), "%s%s", filename, layouts[i]);
++    if (written < 0 || written >= sizeof(candidate))
++        return FALSE;
++    length = GetFullPathNameA(candidate, sizeof(vcpkg_paths[0]),
++                              vcpkg_paths[0], NULL);
++    if (!length || length >= sizeof(vcpkg_paths[0]))
++        return FALSE;
++    for (i = 1; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
++        if (i == 2)
++            continue;
++        written = snprintf(vcpkg_paths[i], sizeof(vcpkg_paths[i]), "%s%s",
++                           vcpkg_paths[0], suffixes[i]);
++        if (written < 0 || written >= sizeof(vcpkg_paths[i]))
++            return FALSE;
++    }
++
++    length = GetTempPathA(sizeof(candidate), candidate);
++    if (!length || length >= sizeof(candidate))
++        return FALSE;
++    written = snprintf(vcpkg_paths[7], sizeof(vcpkg_paths[7]),
++                       "%ssnmpdXXXXXX", candidate);
++    return written >= 0 && written < sizeof(vcpkg_paths[7]);
++}
++
++static BOOL CALLBACK
++vcpkg_init_state(PINIT_ONCE once, PVOID parameter, PVOID *context)
++{
++    char directory[MAX_PATH];
++    DWORD length = GetEnvironmentVariableA("LOCALAPPDATA", directory,
++                                           sizeof(directory));
++    int written;
++    if (!length || length >= sizeof(directory) ||
++        !(((directory[0] >= 'A' && directory[0] <= 'Z') ||
++           (directory[0] >= 'a' && directory[0] <= 'z')) &&
++          directory[1] == ':' &&
++          (directory[2] == '\\' || directory[2] == '/')))
++        return FALSE;
++    written = snprintf(vcpkg_paths[2], sizeof(vcpkg_paths[2]),
++                       "%s/net-snmp/persist", directory);
++    return written >= 0 && written < sizeof(vcpkg_paths[2]);
++}
++
++const char *
++netsnmp_vcpkg_path(int which)
++{
++    if (which < 0 || which >= 8 ||
++        !(which == 2 ?
++          InitOnceExecuteOnce(&vcpkg_state_once, vcpkg_init_state, NULL, NULL) :
++          InitOnceExecuteOnce(&vcpkg_paths_once, vcpkg_init_paths, NULL, NULL))) {
++        snmp_log(LOG_ERR, "Cannot resolve Net-SNMP runtime paths: check module "
++                 "location, absolute LOCALAPPDATA, TEMP, and path lengths.\n");
++        abort();
++    }
++    return vcpkg_paths[which];
++}
++#endif
++
+ netsnmp_feature_child_of(system_all, libnetsnmp);
+ 
+ netsnmp_feature_child_of(user_information, system_all);
+diff --git a/win32/net-snmp/net-snmp-config.h.in b/win32/net-snmp/net-snmp-config.h.in
+index b7a98d3..eea4a83 100644
+--- a/win32/net-snmp/net-snmp-config.h.in
++++ b/win32/net-snmp/net-snmp-config.h.in
+@@ -51,7 +51,7 @@
+ #endif
+ #endif
+ 
+-#define INSTALL_BASE "../../"
++#define INSTALL_BASE netsnmp_vcpkg_path(0)
+ 
+ /* config.h:  a general config file */
+ 
+@@ -69,7 +69,7 @@
+ 
+ /* default location to look for mibs to load using the above tokens
+    and/or those in the MIBS envrionment variable*/
+-#define NETSNMP_DEFAULT_MIBDIRS INSTALL_BASE ## "/share/snmp/mibs"
++#define NETSNMP_DEFAULT_MIBDIRS netsnmp_vcpkg_path(1)
+ 
+ /* default mib files to load, specified by path. */
+ /* #undef NETSNMP_DEFAULT_MIBFILES */
+@@ -118,7 +118,7 @@
+ /* NETSNMP_PERSISTENT_DIRECTORY: If defined, the library is capabile of saving
+    persisant information to this directory in the form of configuration
+    lines: NETSNMP_PERSISTENT_DIRECTORY/NAME.persistent.conf */
+-#define NETSNMP_PERSISTENT_DIRECTORY INSTALL_BASE ## "/snmp/persist"
++#define NETSNMP_PERSISTENT_DIRECTORY netsnmp_vcpkg_path(2)
+ 
+ /* NETSNMP_PERSISTENT_MASK: the umask permissions to set up persistent files with */
+ /* #undef NETSNMP_PERSISTENT_MASK -- no win32 umask */
+@@ -149,10 +149,10 @@
+ 
+ /* SNMPLIBDIR contains important files */
+ 
+-#define SNMPLIBPATH INSTALL_BASE ## "/lib"
+-#define SNMPSHAREPATH INSTALL_BASE ## "/share/snmp"
+-#define SNMPCONFPATH INSTALL_BASE ## "/etc/snmp"
+-#define SNMPDLMODPATH INSTALL_BASE ## "/lib/dlmod"
++#define SNMPLIBPATH netsnmp_vcpkg_path(3)
++#define SNMPSHAREPATH netsnmp_vcpkg_path(4)
++#define SNMPCONFPATH netsnmp_vcpkg_path(5)
++#define SNMPDLMODPATH netsnmp_vcpkg_path(6)
+ 
+ /* NETSNMP_LOGFILE:  If defined it closes stdout/err/in and opens this in out/err's
+    place.  (stdin is closed so that sh scripts won't wait for it) */
+@@ -199,7 +199,7 @@
+ #define UNAMEPROG "/bin/uname"
+ 
+ /* pattern for temporary file names */
+-#define NETSNMP_TEMP_FILE_PATTERN INSTALL_BASE ## "/temp/snmpdXXXXXX"
++#define NETSNMP_TEMP_FILE_PATTERN netsnmp_vcpkg_path(7)
+ 
+ /* testing code sections. */
+ /* #undef NETSNMP_ENABLE_TESTING_CODE */
+@@ -1791,6 +1791,14 @@ enum {
+ #  define NETSNMP_IMPORT extern
+ #endif
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
++NETSNMP_IMPORT const char *netsnmp_vcpkg_path(int which);
++#ifdef __cplusplus
++}
++#endif
++
+ #if defined(HAVE_NLIST) && defined(HAVE_STRUCT_NLIST_N_VALUE) && !defined(DONT_USE_NLIST) && !defined(NETSNMP_NO_KMEM_USAGE)
+ #define NETSNMP_CAN_USE_NLIST
+ #endif
