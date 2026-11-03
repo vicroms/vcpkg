@@ -17,7 +17,6 @@
   ],
   "default-features": [
     "entt",
-    "osgqopengl",
     "wbp"
   ],
   "features": {
@@ -40,6 +39,10 @@
       "description": "Build simQt library",
       "dependencies": [
         "opengl",
+        {
+          "name": "osg",
+          "default-features": false
+        },
         "qtbase"
       ]
     },

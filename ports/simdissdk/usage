@@ -12,7 +12,7 @@ feature of simdissdk is enabled (e.g. `vcpkg install simdissdk[simdata,simvis]`)
   find_package(simData CONFIG REQUIRED)    # feature: simdata
   target_link_libraries(main PRIVATE VSI::simData)
 
-  find_package(simQt CONFIG REQUIRED)      # feature: simqt (also pulls qtbase, opengl)
+  find_package(simQt CONFIG REQUIRED)      # feature: simqt (also pulls qtbase, opengl, osg)
   target_link_libraries(main PRIVATE VSI::simQt)
 
   find_package(simUtil CONFIG REQUIRED)    # feature: simutil (also enables simvis)
@@ -20,3 +20,6 @@ feature of simdissdk is enabled (e.g. `vcpkg install simdissdk[simdata,simvis]`)
 
   find_package(simVis CONFIG REQUIRED)     # feature: simvis (also pulls osgearth, entt, simdata)
   target_link_libraries(main PRIVATE VSI::simVis)
+
+Select the osgqopengl feature explicitly to add simQt::ViewerWidgetAdapter
+when both simqt and simvis are enabled.

@@ -8,6 +8,7 @@ vcpkg_from_github(
         osgearth-find-private-dependencies.patch
         simqt-link-opengl.patch
         wbp-link-opengl.patch
+        math-constants-platform.patch
 )
 
 # The entt and osgqopengl features are realized by locking the corresponding
@@ -47,6 +48,21 @@ vcpkg_cmake_configure(
 )
 
 vcpkg_cmake_install()
+
+# These public layouts must match the library even without its CMake target.
+if(BUILD_SIMDATA)
+    set(_have_entt 0)
+    if("entt" IN_LIST FEATURES)
+        set(_have_entt 1)
+    endif()
+    foreach(_header IN ITEMS CategoryNameManager MemoryCategoryDataSlice)
+        vcpkg_replace_string(
+            "${CURRENT_PACKAGES_DIR}/include/simData/CategoryData/${_header}.h"
+            "#ifdef HAVE_ENTT"
+            "#if ${_have_entt}"
+        )
+    endforeach()
+endif()
 
 # F3 (review): the upstream export header SDK/simCore/Common/Export.h defaults to
 # __declspec(dllimport) on Windows when none of the *_LIB_EXPORT_* macros are
