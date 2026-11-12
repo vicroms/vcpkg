@@ -26,9 +26,11 @@ vcpkg_cmake_configure(
     SOURCE_PATH ${SOURCE_PATH}
     OPTIONS
         ${FEATURE_OPTIONS}
-        -DCMAKE_INSTALL_INCLUDEDIR=${CURRENT_PACKAGES_DIR}/include
+        -DCMAKE_INSTALL_INCLUDEDIR=include
         -DFETCHCONTENT_FULLY_DISCONNECTED=ON
         -DVCPKG_LOCK_FIND_PACKAGE_Stb=ON
+    OPTIONS_DEBUG
+        -DCMAKE_INSTALL_INCLUDEDIR=../include
     MAYBE_UNUSED_VARIABLES
         VCPKG_LOCK_FIND_PACKAGE_SDL3
         VCPKG_LOCK_FIND_PACKAGE_Threads
@@ -38,6 +40,17 @@ vcpkg_cmake_configure(
 )
 
 vcpkg_cmake_install()
+# https://github.com/libtcod/libtcod/issues/208
+if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
+    foreach(config IN ITEMS "" "debug/")
+        if(EXISTS "${CURRENT_PACKAGES_DIR}/${config}lib/pkgconfig/libtcod.pc")
+            vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/${config}lib/pkgconfig/libtcod.pc" "-ltcod" "-llibtcod")
+            if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+                vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/${config}lib/pkgconfig/libtcod.pc" "Cflags:" "Cflags: -DLIBTCOD_STATIC")
+            endif()
+        endif()
+    endforeach()
+endif()
 vcpkg_fixup_pkgconfig()
 
 vcpkg_copy_pdbs()
