@@ -59,6 +59,21 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
+if(BUILD_SIMDATA)
+    set(SIMDATA_HAVE_ENTT 0)
+    if("entt" IN_LIST FEATURES)
+        set(SIMDATA_HAVE_ENTT 1)
+    endif()
+    # Public container layouts must match the installed library, not consumer macros.
+    foreach(header IN ITEMS CategoryNameManager MemoryCategoryDataSlice)
+        vcpkg_replace_string(
+            "${CURRENT_PACKAGES_DIR}/include/simData/CategoryData/${header}.h"
+            "#ifdef HAVE_ENTT"
+            "#if ${SIMDATA_HAVE_ENTT}"
+        )
+    endforeach()
+endif()
+
 # F3 (review): the upstream export header SDK/simCore/Common/Export.h defaults to
 # __declspec(dllimport) on Windows when none of the *_LIB_EXPORT_* macros are
 # defined, which yields unresolved __imp_ symbols for consumers linking the
