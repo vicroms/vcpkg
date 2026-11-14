@@ -14,6 +14,7 @@ vcpkg_from_gitlab(
     PATCHES
         001-windows-gles-dispatch.patch
         002-fix-lavapipe-msvc-release.patch # https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/44850
+        003-control-optional-dependencies.patch
 )
 
 x_vcpkg_get_python_packages(PYTHON_VERSION "3" OUT_PYTHON_VAR "PYTHON3" PACKAGES setuptools mako pyyaml)
@@ -50,6 +51,26 @@ list(APPEND MESA_OPTIONS -Dvalgrind=disabled)
 list(APPEND MESA_OPTIONS -Ddisplay-info=disabled)
 list(APPEND MESA_OPTIONS -Dshared-llvm=disabled)
 list(APPEND MESA_OPTIONS -Dcpp_rtti=true)
+
+if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_OSX)
+    list(APPEND MESA_OPTIONS -Dspirv-tools=disabled)
+elseif(VCPKG_TARGET_IS_ANDROID AND NOT "llvm" IN_LIST FEATURES)
+    list(APPEND MESA_OPTIONS -Dspirv-tools=disabled)
+else()
+    list(APPEND MESA_OPTIONS -Dspirv-tools=enabled)
+endif()
+
+if(VCPKG_TARGET_IS_WINDOWS)
+    list(APPEND MESA_OPTIONS -Dexpat=disabled)
+else()
+    list(APPEND MESA_OPTIONS -Dexpat=enabled)
+endif()
+
+if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_ANDROID)
+    list(APPEND MESA_OPTIONS -Dlibunwind=disabled -Dlmsensors=disabled)
+elseif(VCPKG_TARGET_IS_LINUX)
+    list(APPEND MESA_OPTIONS -Dlibunwind=enabled)
+endif()
 
 if((VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_ANDROID) AND "llvm" IN_LIST FEATURES)
     list(APPEND MESA_ADDITIONAL_BINARIES
@@ -202,4 +223,5 @@ vcpkg_install_copyright(
         "${SOURCE_PATH}/licenses/BSL-1.0"
         "${SOURCE_PATH}/licenses/MIT"
         "${SOURCE_PATH}/licenses/SGI-B-2.0"
+        "${SOURCE_PATH}/src/util/xxhash.h"
 )

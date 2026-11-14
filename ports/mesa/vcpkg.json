@@ -3,12 +3,28 @@
   "version": "26.2.7",
   "description": "Mesa - The 3D Graphics Library",
   "homepage": "https://www.mesa3d.org",
-  "license": "MIT AND BSL-1.0 AND SGI-B-2.0 AND Apache-2.0",
+  "license": "MIT AND BSL-1.0 AND SGI-B-2.0 AND Apache-2.0 AND BSD-2-Clause",
   "supports": "!(windows & arm) & !staticcrt & !uwp",
   "dependencies": [
     {
       "name": "directx-headers",
       "platform": "windows"
+    },
+    {
+      "name": "elfutils",
+      "platform": "linux"
+    },
+    {
+      "name": "expat",
+      "platform": "!windows"
+    },
+    {
+      "name": "libunwind",
+      "platform": "linux"
+    },
+    {
+      "name": "libva",
+      "platform": "linux"
     },
     {
       "name": "llvm",
@@ -21,12 +37,24 @@
       "platform": "windows"
     },
     {
+      "name": "spirv-tools",
+      "platform": "!windows & !osx & !android"
+    },
+    {
+      "name": "tre",
+      "platform": "windows"
+    },
+    {
       "name": "vcpkg-get-python-packages",
       "host": true
     },
     {
       "name": "vcpkg-tool-meson",
       "host": true
+    },
+    {
+      "name": "xcb-keysyms",
+      "platform": "!windows & !android"
     },
     "zlib",
     "zstd"
@@ -130,6 +158,10 @@
             "target-x86"
           ],
           "platform": "x64 | x86"
+        },
+        {
+          "name": "spirv-tools",
+          "platform": "android"
         }
       ]
     }
