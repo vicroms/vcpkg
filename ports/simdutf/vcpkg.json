@@ -19,10 +19,7 @@
       "description": "Build the fastbase64 and simdutf command line tools for transcoding strings",
       "license": "LGPL-2.1-or-later",
       "dependencies": [
-        {
-          "name": "libiconv",
-          "platform": "windows"
-        }
+        "libiconv"
       ]
     }
   }

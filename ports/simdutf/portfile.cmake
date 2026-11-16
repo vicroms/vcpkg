@@ -12,6 +12,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
     "tools" SIMDUTF_TOOLS
     "tools" SIMDUTF_ICONV
+    "tools" VCPKG_LOCK_FIND_PACKAGE_Iconv
 )
 
 vcpkg_cmake_configure(
@@ -41,7 +42,7 @@ set(COPYRIGHT_FILES
     "${SOURCE_PATH}/LICENSE-MIT"
     "${SOURCE_PATH}/include/simdutf/internal/isadetection.h"
 )
-if("tools" IN_LIST FEATURES AND VCPKG_TARGET_IS_WINDOWS)
+if("tools" IN_LIST FEATURES AND EXISTS "${CURRENT_INSTALLED_DIR}/share/libiconv/copyright")
     list(APPEND COPYRIGHT_FILES "${CURRENT_INSTALLED_DIR}/share/libiconv/copyright")
 endif()
 vcpkg_install_copyright(FILE_LIST ${COPYRIGHT_FILES})
