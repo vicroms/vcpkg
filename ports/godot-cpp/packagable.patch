@@ -52,7 +52,7 @@ index bc5d6a0..20efb24 100644
  #[[ Generate Trimmed API
  
 diff --git a/cmake/godotcpp.cmake b/cmake/godotcpp.cmake
-index 8c018a3..f444f55 100644
+index 8c018a3..4abcd67 100644
 --- a/cmake/godotcpp.cmake
 +++ b/cmake/godotcpp.cmake
 @@ -135,7 +135,7 @@ function(godotcpp_options)
@@ -69,8 +69,8 @@ index 8c018a3..f444f55 100644
      ### Define our godot-cpp library targets
      # Generator Expressions that rely on the target
 -    set(DEBUG_FEATURES "$<NOT:$<STREQUAL:${GODOTCPP_TARGET},template_release>>")
-+    # Consumers must use the same debug features as the selected prebuilt configuration.
-+    set(DEBUG_FEATURES "$<CONFIG:Debug>")
++    # Installed consumers must use the debug features of the selected prebuilt library.
++    set(DEBUG_FEATURES "$<BUILD_INTERFACE:$<NOT:$<STREQUAL:${GODOTCPP_TARGET},template_release>>>$<INSTALL_INTERFACE:$<STREQUAL:$<TARGET_FILE:unofficial::godot::cpp>,$<TARGET_PROPERTY:unofficial::godot::cpp,IMPORTED_LOCATION_DEBUG>>>")
  
      # Suffix Generator Expression
      string(
@@ -113,3 +113,19 @@ index 7478a5a..697be85 100644
  endfunction()
  
  #[===========================[ Target Generation ]===========================]
+diff --git a/include/godot_cpp/templates/mutex.hpp b/include/godot_cpp/templates/mutex.hpp
+index 4bf6585..4385635 100644
+--- a/include/godot_cpp/templates/mutex.hpp
++++ b/include/godot_cpp/templates/mutex.hpp
+@@ -41,6 +41,11 @@
+ #define THREADING_NAMESPACE std
+ #endif
+ 
++// The prebuilt library is always built with threads enabled.
++#ifndef THREADS_ENABLED
++#define THREADS_ENABLED
++#endif
++
+ namespace godot {
+ 
+ #ifdef THREADS_ENABLED
