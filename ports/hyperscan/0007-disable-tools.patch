@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 540baeb..a73f6be 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -503,10 +503,6 @@ if (CORRECT_PCRE_VERSION AND PCRE_BUILD_SOURCE AND BUILD_STATIC_LIBS)
+     set(BUILD_CHIMERA TRUE)
+ endif()
+ 
+-add_subdirectory(unit)
+-if (EXISTS ${CMAKE_SOURCE_DIR}/tools/CMakeLists.txt)
+-    add_subdirectory(tools)
+-endif()
+ if (EXISTS ${CMAKE_SOURCE_DIR}/chimera/CMakeLists.txt AND BUILD_CHIMERA)
+     add_subdirectory(chimera)
+ endif()
+@@ -556,9 +552,6 @@ if (CORRECT_PCRE_VERSION AND PCRE_BUILD_SOURCE AND BUILD_STATIC_LIBS)
+     set(BUILD_CHIMERA TRUE)
+ endif()
+ 
+-if (EXISTS ${CMAKE_SOURCE_DIR}/tools/CMakeLists.txt)
+-    add_subdirectory(tools)
+-endif()
+ if (EXISTS ${CMAKE_SOURCE_DIR}/chimera/CMakeLists.txt AND BUILD_CHIMERA)
+     add_subdirectory(chimera)
+ endif()

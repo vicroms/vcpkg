@@ -10,6 +10,8 @@ vcpkg_from_github(
         0003-disable-tests.patch # also avoids old vendored gtest that fails on MSVC 19.51+ due to removed std::tr1
         0004-remove-rev.patch # https://github.com/intel/hyperscan/pull/482
         0005-fix-openssl-vectorcall.patch
+        0006-fix-crypto-symbols.patch
+        0007-disable-tools.patch
 )
 
 vcpkg_find_acquire_program(PYTHON3)
