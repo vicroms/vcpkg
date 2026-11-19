@@ -15,6 +15,7 @@ vcpkg_from_github(
         "${SIMQT_OPENGL_PATCH}"
         wbp-link-opengl.patch
         windows-math-constants.patch # https://github.com/USNavalResearchLaboratory/simdissdk/pull/128
+        windows-public-headers.patch
 )
 
 # The entt and osgqopengl features are realized by locking the corresponding
