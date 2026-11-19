@@ -12,7 +12,7 @@ index 0ac5e9eb..d65e320f 100644
      #define WIN32_LEAN_AND_MEAN
    #endif
 diff --git a/SDK/simCore/Common/Time.h b/SDK/simCore/Common/Time.h
-index c8aeb694..37e30232 100644
+index c8aeb694..11d955d3 100644
 --- a/SDK/simCore/Common/Time.h
 +++ b/SDK/simCore/Common/Time.h
 @@ -27,7 +27,7 @@
@@ -33,16 +33,17 @@ index c8aeb694..37e30232 100644
  
  #include <winsock2.h>
  
-@@ -67,7 +67,7 @@ struct timezone
+@@ -67,7 +67,8 @@ struct timezone
  };
  
  /// If your software already defines timespec_t, define this macro in your CMake file
 -#if !defined(DEFINED_TIMESPEC_T)
-+#if !defined(DEFINED_TIMESPEC_T) && !defined(_TIMESPEC_DEFINED)
++// MSVC's Universal CRT provides timespec without a dedicated definition guard.
++#if !defined(DEFINED_TIMESPEC_T) && !defined(_TIMESPEC_DEFINED) && (!defined(_MSC_VER) || _MSC_VER < 1900)
  /**
   * Equivalent POSIX structure that provides a decimal-based fixed-point data format for elapsed time
   */
-@@ -118,6 +118,6 @@ inline int GetTimeOfDay(struct timeval *t, struct timezone *z)
+@@ -118,6 +119,6 @@ inline int GetTimeOfDay(struct timeval *t, struct timezone *z)
    return 0;
  }
  
